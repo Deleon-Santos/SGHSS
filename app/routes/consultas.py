@@ -1,10 +1,12 @@
 from datetime import date, datetime
 from flask import request, jsonify, current_app
-
+from flask import Blueprint
 from app.models.medicamento import Medicamento
 from .import consultas_bp as consultas_db
 from app.models.consulta import Consulta
 from app.models.exame import Exame
+# from flask_restx import Namespace, Resource
+
 
 @consultas_db.route('/consulta/<int:consulta_id>/finaliza', methods=['POST'])
 def finaliza_consulta(consulta_id):

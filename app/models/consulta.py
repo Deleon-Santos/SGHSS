@@ -16,6 +16,7 @@ class Consulta(db.Model):
 
     paciente = db.relationship('Paciente', back_populates='consultas')
     medico = db.relationship('Medico', back_populates='consultas')
+    secretario = db.relationship('Secretario', backref='consultas')
 
 
     medicamentos = db.relationship('Medicamento', back_populates='consulta', cascade='all, delete-orphan')
