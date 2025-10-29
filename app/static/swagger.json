@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SGHSS - API de Consultas",
+    "version": "1.0.0",
+    "description": "API para gerenciamento de consultas, prescrições e exames médicos do sistema SGHSS."
+  },
+  "host": "127.0.0.1:5000",
+  "basePath": "/api",
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/consulta/{consulta_id}/finaliza": {
+      "post": {
+        "summary": "Finaliza uma consulta médica",
+        "description": "Define o diagnóstico e marca a consulta como 'Realizada'.",
+        "parameters": [
+          {
+            "name": "consulta_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID da consulta a ser finalizada"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Diagnóstico da consulta",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "diagnostico": { "type": "string", "example": "Gripe comum" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta finalizada com sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mensagem": { "type": "string", "example": "Consulta 1 finalizada e diagnóstico registrado." }
+              }
+            }
+          },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+    "/consulta/{consulta_id}/prescreve": {
+      "post": {
+        "summary": "Prescreve um medicamento",
+        "description": "Cria uma prescrição vinculada a uma consulta.",
+        "parameters": [
+          {
+            "name": "consulta_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID da consulta"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Informações do medicamento",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["nome", "dosagem", "medico_id"],
+              "properties": {
+                "nome": { "type": "string", "example": "Dipirona" },
+                "dosagem": { "type": "string", "example": "500mg a cada 8h" },
+                "orientacoes": { "type": "string", "example": "Tomar após as refeições" },
+                "medico_id": { "type": "integer", "example": 1 }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Medicamento prescrito com sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mensagem": { "type": "string", "example": "Medicamento prescrito com sucesso." },
+                "id": { "type": "integer", "example": 10 }
+              }
+            }
+          },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+    "/consulta/{consulta_id}/solicita_exame": {
+      "post": {
+        "summary": "Solicita um exame médico",
+        "description": "Solicita um novo exame vinculado a uma consulta existente.",
+        "parameters": [
+          {
+            "name": "consulta_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID da consulta"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Informações do exame",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["tipo", "medico_id"],
+              "properties": {
+                "tipo": { "type": "string", "example": "Hemograma completo" },
+                "medico_id": { "type": "integer", "example": 1 }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Exame solicitado com sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mensagem": { "type": "string", "example": "Exame solicitado com sucesso." },
+                "id": { "type": "integer", "example": 3 }
+              }
+            }
+          },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+    "/agenda/medico/{medico_id}": {
+      "get": {
+        "summary": "Consulta a agenda do médico",
+        "description": "Lista todas as consultas agendadas de um médico, com opção de filtrar por data.",
+        "parameters": [
+          {
+            "name": "medico_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do médico"
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "type": "string",
+            "format": "date",
+            "description": "Filtra consultas por data (formato: YYYY-MM-DD)",
+            "example": "2025-10-28"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de consultas do médico",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer", "example": 1 },
+                  "paciente": { "type": "string", "example": "João da Silva" },
+                  "data": { "type": "string", "example": "2025-10-28" },
+                  "hora": { "type": "string", "example": "14:30:00" },
+                  "status": { "type": "string", "example": "Agendada" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Erro no formato da data" }
+        }
+      }
+    }
+  }
+}
