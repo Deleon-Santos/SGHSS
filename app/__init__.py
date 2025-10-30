@@ -21,7 +21,7 @@ def create_app():
     )
     app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 
-    # ✅ Registrar rotas
+   
     from app.routes.consultas import consultas_bp
     app.register_blueprint(consultas_bp, url_prefix="/api")
 

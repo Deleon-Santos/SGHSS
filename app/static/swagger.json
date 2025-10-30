@@ -3,15 +3,16 @@
   "info": {
     "title": "SGHSS - API de Consultas",
     "version": "1.0.0",
-    "description": "API para gerenciamento de consultas, prescrições e exames médicos do sistema SGHSS."
+    "description": "API para gerenciamento de consultas, prescrições, exames e rotinas administrativas (Secretaria) do sistema SGHSS."
   },
   "host": "127.0.0.1:5000",
   "basePath": "/api",
   "schemes": ["http"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
+
   "paths": {
-    "/consulta/{consulta_id}/finaliza": {
+    "/consulta/{consulta_id}/atendimento": {
       "post": {
         "summary": "Finaliza uma consulta médica",
         "description": "Define o diagnóstico e marca a consulta como 'Realizada'.",
@@ -37,35 +38,21 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Consulta finalizada com sucesso",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mensagem": { "type": "string", "example": "Consulta 1 finalizada e diagnóstico registrado." }
-              }
-            }
-          },
+          "200": { "description": "Consulta finalizada com sucesso" },
           "400": { "description": "Erro de validação" }
         }
       }
     },
+
     "/consulta/{consulta_id}/prescreve": {
       "post": {
         "summary": "Prescreve um medicamento",
         "description": "Cria uma prescrição vinculada a uma consulta.",
         "parameters": [
-          {
-            "name": "consulta_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID da consulta"
-          },
+          { "name": "consulta_id", "in": "path", "required": true, "type": "integer" },
           {
             "in": "body",
             "name": "body",
-            "description": "Informações do medicamento",
             "required": true,
             "schema": {
               "type": "object",
@@ -80,36 +67,21 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Medicamento prescrito com sucesso",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mensagem": { "type": "string", "example": "Medicamento prescrito com sucesso." },
-                "id": { "type": "integer", "example": 10 }
-              }
-            }
-          },
+          "201": { "description": "Medicamento prescrito com sucesso" },
           "400": { "description": "Erro de validação" }
         }
       }
     },
+
     "/consulta/{consulta_id}/solicita_exame": {
       "post": {
         "summary": "Solicita um exame médico",
         "description": "Solicita um novo exame vinculado a uma consulta existente.",
         "parameters": [
-          {
-            "name": "consulta_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID da consulta"
-          },
+          { "name": "consulta_id", "in": "path", "required": true, "type": "integer" },
           {
             "in": "body",
             "name": "body",
-            "description": "Informações do exame",
             "required": true,
             "schema": {
               "type": "object",
@@ -122,59 +94,124 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Exame solicitado com sucesso",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mensagem": { "type": "string", "example": "Exame solicitado com sucesso." },
-                "id": { "type": "integer", "example": 3 }
-              }
-            }
-          },
+          "201": { "description": "Exame solicitado com sucesso" },
           "400": { "description": "Erro de validação" }
         }
       }
     },
+
     "/agenda/medico/{medico_id}": {
       "get": {
         "summary": "Consulta a agenda do médico",
         "description": "Lista todas as consultas agendadas de um médico, com opção de filtrar por data.",
         "parameters": [
+          { "name": "medico_id", "in": "path", "required": true, "type": "integer" },
+          { "name": "data", "in": "query", "type": "string", "format": "date", "example": "2025-10-28" }
+        ],
+        "responses": {
+          "200": { "description": "Lista de consultas do médico" },
+          "400": { "description": "Erro no formato da data" }
+        }
+      }
+    },
+
+    "/consulta/medico": {
+      "post": {
+        "summary": "Cadastra um novo médico",
+        "description": "Permite à secretaria registrar um novo médico no sistema.",
+        "parameters": [
           {
-            "name": "medico_id",
-            "in": "path",
+            "in": "body",
+            "name": "body",
             "required": true,
-            "type": "integer",
-            "description": "ID do médico"
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "description": "Filtra consultas por data (formato: YYYY-MM-DD)",
-            "example": "2025-10-28"
+            "schema": {
+              "type": "object",
+              "required": ["nome", "especialidade", "crm"],
+              "properties": {
+                "nome": { "type": "string", "example": "Dr. João Pereira" },
+                "especialidade": { "type": "string", "example": "Cardiologia" },
+                "crm": { "type": "string", "example": "12345-DF" }
+              }
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Lista de consultas do médico",
+          "201": { "description": "Médico cadastrado com sucesso" },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+
+    "/consulta/medico/{medico_id}": {
+      "delete": {
+        "summary": "Exclui um médico",
+        "description": "Permite à secretaria remover um médico cadastrado.",
+        "parameters": [
+          { "name": "medico_id", "in": "path", "required": true, "type": "integer" }
+        ],
+        "responses": {
+          "200": { "description": "Médico excluído com sucesso" },
+          "404": { "description": "Médico não encontrado" }
+        }
+      }
+    },
+
+    "/consulta/paciente": {
+      "post": {
+        "summary": "Cadastra um novo paciente",
+        "description": "Permite à secretaria registrar um novo paciente.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": { "type": "integer", "example": 1 },
-                  "paciente": { "type": "string", "example": "João da Silva" },
-                  "data": { "type": "string", "example": "2025-10-28" },
-                  "hora": { "type": "string", "example": "14:30:00" },
-                  "status": { "type": "string", "example": "Agendada" }
-                }
+              "type": "object",
+              "required": ["nome", "cpf", "data_nascimento"],
+              "properties": {
+                "nome": { "type": "string", "example": "Maria Souza" },
+                "cpf": { "type": "string", "example": "123.456.789-00" },
+                "data_nascimento": { "type": "string", "format": "date", "example": "1990-05-14" }
               }
             }
-          },
-          "400": { "description": "Erro no formato da data" }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Paciente cadastrado com sucesso" },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+
+    "/consulta/paciente/{paciente_id}": {
+      "delete": {
+        "summary": "Exclui um paciente",
+        "description": "Permite à secretaria remover um paciente cadastrado.",
+        "parameters": [
+          { "name": "paciente_id", "in": "path", "required": true, "type": "integer" }
+        ],
+        "responses": {
+          "200": { "description": "Paciente excluído com sucesso" },
+          "404": { "description": "Paciente não encontrado" }
+        }
+      }
+    },
+
+    "/consulta/consultas": {
+      "get": {
+        "summary": "Lista todas as consultas agendadas",
+        "description": "Permite à secretaria visualizar todas as consultas, com opção de filtrar por status.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "description": "Filtra consultas por status (Agendada, Realizada, Cancelada)",
+            "example": "Agendada"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de consultas recuperada com sucesso" }
         }
       }
     }
