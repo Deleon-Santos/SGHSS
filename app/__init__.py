@@ -2,13 +2,18 @@ from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.database.data import seed_db
 from .config import Config
-from .extensions import db
+from .extensions import db, jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
+# 🔐 garante que o médico esteja autenticado
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.config['JWT_SECRET_KEY'] = 'chave_super_secreta_SGHSS'
+
     db.init_app(app)
+    jwt.init_app(app)
 
     # Swagger UI
     SWAGGER_URL = '/docs'
