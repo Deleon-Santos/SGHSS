@@ -4,7 +4,7 @@ from app.models.medico import Medico
 from app.models.secretario import Secretario
 from app.models.paciente import Paciente
 
-novo_usuario_bp = Blueprint('novo_usuario', __name__)
+novo_usuario_bp = Blueprint('login_usuario', __name__)
 @novo_usuario_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()

@@ -30,9 +30,11 @@ def create_app():
     from app.routes.consultas_medico import consultas_medico_bp
     from app.routes.consultas_paciente import consultas_paciente_bp
     from app.routes.consultas_secretaria import consultas_secretaria_bp
+    from app.routes.cadastro_autorizacao_tokens import novo_usuario_bp
     app.register_blueprint(consultas_medico_bp, url_prefix="/api")
     app.register_blueprint(consultas_paciente_bp, url_prefix="/api")
     app.register_blueprint(consultas_secretaria_bp, url_prefix="/api")
+    app.register_blueprint(novo_usuario_bp, url_prefix="/api")
 
     # Banco de dados
     with app.app_context():

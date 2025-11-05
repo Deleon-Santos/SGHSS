@@ -7,7 +7,8 @@ class Medico(db.Model):
     nome = db.Column(db.String(120), nullable=False)
     crm = db.Column(db.String(50), unique=True)
     especialidade = db.Column(db.String(80))
-
+    usuario = db.Column(db.String(80), unique=True, nullable=False)
+    senha = db.Column(db.String(20), nullable=False)
 
     consultas = db.relationship('Consulta', back_populates='medico')
     def __repr__(self):

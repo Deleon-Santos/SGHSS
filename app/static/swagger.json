@@ -173,7 +173,7 @@
       }
     },
 
-    "/consulta/agendamento": {
+    "/consulta/medico_agendamento": {
       "post": {
         "tags": ["Paciente"],
         "summary": "Agendar uma nova consulta",

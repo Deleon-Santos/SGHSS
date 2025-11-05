@@ -25,8 +25,10 @@ def finaliza_consulta(consulta_id):
 
     if 'diagnostico' not in data:
         return jsonify({"erro": "Diagnóstico é obrigatório para finalizar a consulta."}), 400
+    
     if data('medico_id') != medico_id:
         return jsonify({"erro": "Ação não autorizada para este médico."}), 403
+    
     consulta.diagnostico = data['diagnostico']
     consulta.status = 'Realizada'
     consulta.medico_id = data.get('medico_id')
@@ -43,8 +45,10 @@ def prescreve_medicamento(consulta_id):
 
     if not all(k in data for k in ['nome', 'dosagem', 'medico_id']):
         return jsonify({"erro": "Dados obrigatórios faltando (nome, dosagem, medico_id)."}), 400
+    
     if data['medico_id'] != medico_id:
         return jsonify({"erro": "Ação não autorizada para este médico."}), 403
+    
     medicamento = Medicamento(
         nome=data['nome'],
         dosagem=data['dosagem'],

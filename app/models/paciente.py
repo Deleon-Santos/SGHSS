@@ -7,6 +7,8 @@ class Paciente(db.Model):
     nome = db.Column(db.String(120), nullable=False)
     data_nascimento = db.Column(db.Date)
     cpf = db.Column(db.String(20), unique=True)
+    usuario = db.Column(db.String(80), unique=True, nullable=False)
+    senha = db.Column(db.String(20), nullable=False)
 
 
     consultas = db.relationship('Consulta', back_populates='paciente')

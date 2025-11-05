@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from flask import request, jsonify, Blueprint
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.models.consulta import Consulta
 from app.extensions import db
 
@@ -11,9 +12,46 @@ consultas_paciente_bp = Blueprint('consultas_paciente', __name__)
 def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
+# o paciente pode agendar uma consulta
+@consultas_paciente_bp.route('/consulta/agendamento', methods=['POST'])
+@jwt_required()
+def agendamento():
+    paciente_id = get_jwt_identity()
+    data = request.json or {}
+    if not paciente_id :
+        return jsonify({"erro": "Paciente não identificado."}), 403
+    
+    if not all(k in data for k in ['medico_id', 'data', 'hora']):
+        return jsonify({"erro": "Dados obrigatórios faltando (medico_id, data, hora)."}), 400
+    
+    if paciente_id != data.get('paciente_id'):
+        return jsonify({"erro": f"Agendamento autrizado apena para o seu User_id."}), 403
+    
+    try:
+        data_consulta = datetime.strptime(data['data'], '%Y-%m-%d').date()
+        hora_consulta = datetime.strptime(data['hora'], '%H:%M').time()
+    except ValueError:
+        return jsonify({"erro": "Formato de data ou hora inválido."}), 400
+
+    consulta = Consulta(
+        paciente_id=paciente_id,
+        medico_id=data['medico_id'],
+        data=data_consulta,
+        hora=hora_consulta,
+        status='Agendada'
+    )
+    db.session.add(consulta)
+    db.session.commit()
+    return jsonify({"mensagem": "Consulta agendada com sucesso.", "id": consulta.id}), 201
+
+
 # O parciente deve verificar a ajenda do medico de acordo com a especialidade
-@consultas_paciente_bp.route('/agenda/_especialidade/<int:medico_id>', methods=['GET'])
+@consultas_paciente_bp.route('/agenda/medico_especialidade/<int:medico_id>', methods=['GET'])
+@jwt_required()
 def consulta_agenda_especialidade(medico_id):
+    paciente_id = get_jwt_identity()
+    if not paciente_id:
+        return jsonify({"erro": "Paciente não identificado."}), 403
     data_filtro = request.args.get('data')
     query = Consulta.query.filter_by(medico_id=medico_id)
 
@@ -38,40 +76,22 @@ def consulta_agenda_especialidade(medico_id):
     return jsonify(resultado), 200
 
 
-# o paciente pode agendar uma consulta
-@consultas_paciente_bp.route('/consulta/agendamento', methods=['POST'])
-def agendamento():
-    data = request.json or {}
-
-    if not all(k in data for k in ['paciente_id', 'medico_id', 'data', 'hora']):
-        return jsonify({"erro": "Dados obrigatórios faltando (paciente_id, medico_id, data, hora)."}), 400
-
-    try:
-        data_consulta = datetime.strptime(data['data'], '%Y-%m-%d').date()
-        hora_consulta = datetime.strptime(data['hora'], '%H:%M').time()
-    except ValueError:
-        return jsonify({"erro": "Formato de data ou hora inválido."}), 400
-
-    consulta = Consulta(
-        paciente_id=data['paciente_id'],
-        medico_id=data['medico_id'],
-        data=data_consulta,
-        hora=hora_consulta,
-        status='Agendada'
-    )
-    db.session.add(consulta)
-    db.session.commit()
-    return jsonify({"mensagem": "Consulta agendada com sucesso.", "id": consulta.id}), 201
 
 
 #o paciente pode cancelar uma consulta
 @consultas_paciente_bp.route('/consulta/<int:consulta_id>/cancelamento', methods=['POST'])
-def cancelamento():
+@jwt_required()
+def cancelamento(consulta_id):
+    paciente_id = get_jwt_identity()
     data = request.json or {}
+    consulta = Consulta.query.get_or_404(consulta_id)
 
     if 'consulta_id' not in data:
         return jsonify({"erro": "consulta_id é obrigatório para cancelar a consulta."}), 400
-
+    
+    if paciente_id != data.get('paciente_id'):
+        return jsonify({"erro": f"Cancelamento autorizado apenas para o seu User_id {paciente_id}."}), 403
+    
     consulta = Consulta.query.get_or_404(data['consulta_id'])
     consulta.status = 'Cancelada'
     db.session.commit()
@@ -80,7 +100,10 @@ def cancelamento():
 
 # o paciente pode ver sua agenda de consultas
 @consultas_paciente_bp.route('/agenda/paciente', methods=['GET'])
-def consulta_agendamento(paciente_id):
+@jwt_required()
+def consulta_agendamento():
+    paciente_id = get_jwt_identity()
+    
     data_filtro = request.args.get('data')
     query = Consulta.query.filter_by(paciente_id=paciente_id)
 
