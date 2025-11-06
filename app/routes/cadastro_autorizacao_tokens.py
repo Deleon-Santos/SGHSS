@@ -4,8 +4,9 @@ from app.models.medico import Medico
 from app.models.secretario import Secretario
 from app.models.paciente import Paciente
 
-novo_usuario_bp = Blueprint('login_usuario', __name__)
-@novo_usuario_bp.route('/login', methods=['POST'])
+novo_usuario_bp = Blueprint('cadastrar_usuario', __name__)
+
+@novo_usuario_bp.route('/novo_usuario', methods=['POST'])
 def login():
     data = request.get_json()
     tipo = data.get('tipo')  # 'medico', 'paciente' ou 'secretaria'

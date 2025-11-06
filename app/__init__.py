@@ -10,7 +10,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['JWT_SECRET_KEY'] = 'chave_super_secreta_SGHSS'
+    app.config['JWT_SECRET_KEY'] = 'minha_nova_chave_super_secreta_SGHSS_ainda _maior'
 
     db.init_app(app)
     jwt.init_app(app)
@@ -31,11 +31,12 @@ def create_app():
     from app.routes.consultas_paciente import consultas_paciente_bp
     from app.routes.consultas_secretaria import consultas_secretaria_bp
     from app.routes.cadastro_autorizacao_tokens import novo_usuario_bp
+    from app.routes.login import login_bp
     app.register_blueprint(consultas_medico_bp, url_prefix="/api")
     app.register_blueprint(consultas_paciente_bp, url_prefix="/api")
     app.register_blueprint(consultas_secretaria_bp, url_prefix="/api")
     app.register_blueprint(novo_usuario_bp, url_prefix="/api")
-
+    app.register_blueprint(login_bp, url_prefix="/api")
     # Banco de dados
     with app.app_context():
         db.create_all()

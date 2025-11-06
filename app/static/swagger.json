@@ -10,8 +10,89 @@
   "schemes": ["http"],
   "produces": ["application/json"],
   "consumes": ["application/json"],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Autenticação JWT. Use o formato: **Bearer {seu_token_aqui}**"
+    }
+  },
+
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
 
   "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Login de usuário (gera token JWT válido por 60 minutos)",
+        "description": "Permite que médicos, secretários e pacientes façam login e recebam um token JWT com validade de 60 minutos.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Credenciais de login do usuário.",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "NomeSobrenome": {
+                  "type": "string",
+                  "example": "MariaMagalhaes"
+                },
+                "Senha": {
+                  "type": "string",
+                  "example": "CRM456"
+                }
+              },
+              "required": ["nome", "senha"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mensagem": { "type": "string", "example": "Login realizado com sucesso" },
+                "token": { "type": "string", "example": "eyJ0eXAiOiJKV1QiLCJh..." },
+                "expira_em": { "type": "string", "example": "60 minutos" }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos obrigatórios ausentes",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "erro": { "type": "string", "example": "Email e senha são obrigatórios" }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "erro": { "type": "string", "example": "Credenciais inválidas" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
     "/consulta/{consulta_id}/atendimento": {
       "post": {
         "tags": ["Medico"],
