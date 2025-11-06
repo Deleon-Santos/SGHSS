@@ -3,6 +3,7 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.models.consulta import Consulta
 from app.extensions import db
+from app.models.medico import Medico
 
 
 
@@ -13,7 +14,7 @@ def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
 # o paciente pode agendar uma consulta
-@consultas_paciente_bp.route('/consulta/agendamento', methods=['POST'])
+@consultas_paciente_bp.route('/consulta/novo_agendamento', methods=['POST'])
 @jwt_required()
 def agendamento():
     paciente_id = get_jwt_identity()
@@ -45,8 +46,30 @@ def agendamento():
     return jsonify({"mensagem": "Consulta agendada com sucesso.", "id": consulta.id}), 201
 
 
+# o paciente pode ver a lista de medicos credenciados
+@consultas_paciente_bp.route('/consulta/lista_medico_credenciado', methods=['GET'])
+@jwt_required()
+def consulta_lista_medico_credenciado():
+    paciente_id = get_jwt_identity()
+    if not paciente_id:
+        return jsonify({"erro": "Paciente não identificado."}), 403
+
+    medicos = Medico.query.all()
+
+    lista_medicos = []
+    for medico in medicos:
+        lista_medicos.append({
+            "id": medico.id,
+            "nome": medico.nome,
+            "crm": medico.crm,
+            "especialidade": medico.especialidade,
+        })
+
+    return jsonify(lista_medicos), 200
+   
+
 # O parciente deve verificar a ajenda do medico de acordo com a especialidade
-@consultas_paciente_bp.route('/agenda/medico_especialidade/<int:medico_id>', methods=['GET'])
+@consultas_paciente_bp.route('/consulta/agenda_medica/<int:medico_id>', methods=['GET'])
 @jwt_required()
 def consulta_agenda_especialidade(medico_id):
     paciente_id = get_jwt_identity()
@@ -76,8 +99,6 @@ def consulta_agenda_especialidade(medico_id):
     return jsonify(resultado), 200
 
 
-
-
 #o paciente pode cancelar uma consulta
 @consultas_paciente_bp.route('/consulta/<int:consulta_id>/cancelamento', methods=['POST'])
 @jwt_required()
@@ -99,7 +120,7 @@ def cancelamento(consulta_id):
 
 
 # o paciente pode ver sua agenda de consultas
-@consultas_paciente_bp.route('/agenda/paciente', methods=['GET'])
+@consultas_paciente_bp.route('/consulta/agenda_paciente', methods=['GET'])
 @jwt_required()
 def consulta_agendamento():
     paciente_id = get_jwt_identity()

@@ -19,20 +19,26 @@ def swagger_redirect():
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/atendimento', methods=['POST'])
 @jwt_required()  # 🔐 garante que o médico esteja autenticado
 def finaliza_consulta(consulta_id):
-    medico_id = get_jwt_identity()
+    usuario_id = get_jwt_identity()
+    medico_id = usuario_id['id']
     consulta = Consulta.query.get_or_404(consulta_id)
-    data = request.json or {}
+    data = request.get_json() or {}
 
+    # Validação do diagnóstico
     if 'diagnostico' not in data:
         return jsonify({"erro": "Diagnóstico é obrigatório para finalizar a consulta."}), 400
     
-    if data('medico_id') != medico_id:
+    # Verifica se o médico autenticado é o mesmo que está tentando finalizar
+    if data.get('medico_id') != medico_id:
         return jsonify({"erro": "Ação não autorizada para este médico."}), 403
     
+    # Atualiza os dados da consulta
     consulta.diagnostico = data['diagnostico']
     consulta.status = 'Realizada'
-    consulta.medico_id = data.get('medico_id')
+    consulta.medico_id = medico_id  # garante que o ID vem do token, não do body
+
     db.session.commit()
+
     return jsonify({"mensagem": f"Consulta {consulta_id} finalizada e diagnóstico registrado."}), 200
 
 
@@ -83,11 +89,12 @@ def solicita_exame(consulta_id):
     return jsonify({"mensagem": "Exame solicitado com sucesso.", "id": exame.id}), 201
 
 
-@consultas_medico_bp.route('/agenda/medico', methods=['GET'])
+@consultas_medico_bp.route('/consulta/agenda_medica', methods=['GET'])
 @jwt_required()  # 🔐 garante que o médico esteja autenticado
 def consulta_agenda():
     # ✅ Recupera o ID do médico logado do token JWT
-    medico_id = get_jwt_identity()
+    usuario = get_jwt_identity()
+    medico_id = usuario['id']
 
     data_filtro = request.args.get('data')
     
@@ -108,11 +115,14 @@ def consulta_agenda():
     # Monta o resultado em JSON
     resultado = [
         {
-            "id": c.id,
+            "consulta_id": c.medico.id,
+            "medico_id": c.id,
+            "nome_medico": c.medico.nome if c.medico else None,
             "paciente": c.paciente.nome if c.paciente else None,
             "data": str(c.data),
             "hora": str(c.hora),
             "status": c.status
+            
         }
         for c in agenda
     ]

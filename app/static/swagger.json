@@ -93,6 +93,47 @@
       "BearerAuth": []
     }
   ],
+  "/consulta/agenda_medica": {
+      "get": {
+        "tags": ["Medico"],
+        "summary": "Consultar agenda do médico",
+        "description": "Retorna todas as consultas do médico especificado, podendo filtrar por data.",
+        "parameters": [
+          
+        ],
+        "responses": {
+          "200": { "description": "Lista de consultas encontradas" },
+          "400": { "description": "Formato de data inválido" }
+        }
+      }
+    },
+
+    "/consulta/agenda_medica/{medico_id}": {
+      "get": {
+        "tags": ["Paciente"],
+        "summary": "Listar agenda de um médico por especialidade",
+        "parameters": [
+          {
+            "name": "medico_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do médico"
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "type": "string",
+            "format": "date",
+            "description": "Filtrar por data (YYYY-MM-DD)"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de horários disponíveis" },
+          "400": { "description": "Formato de data inválido" }
+        }
+      }
+    },
     "/consulta/{consulta_id}/atendimento": {
       "post": {
         "tags": ["Medico"],
@@ -199,62 +240,9 @@
       }
     },
 
-    "/agenda/medico/{medico_id}": {
-      "get": {
-        "tags": ["Medico"],
-        "summary": "Consultar agenda de um médico",
-        "description": "Retorna todas as consultas do médico especificado, podendo filtrar por data.",
-        "parameters": [
-          {
-            "name": "medico_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID do médico"
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "description": "Filtrar por data (YYYY-MM-DD)"
-          }
-        ],
-        "responses": {
-          "200": { "description": "Lista de consultas encontradas" },
-          "400": { "description": "Formato de data inválido" }
-        }
-      }
-    },
+    
 
-    "/agenda/_especialidade/{medico_id}": {
-      "get": {
-        "tags": ["Paciente"],
-        "summary": "Listar agenda de um médico por especialidade",
-        "parameters": [
-          {
-            "name": "medico_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID do médico"
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "description": "Filtrar por data (YYYY-MM-DD)"
-          }
-        ],
-        "responses": {
-          "200": { "description": "Lista de horários disponíveis" },
-          "400": { "description": "Formato de data inválido" }
-        }
-      }
-    },
-
-    "/consulta/medico_agendamento": {
+    "/consulta/novo_agendamento": {
       "post": {
         "tags": ["Paciente"],
         "summary": "Agendar uma nova consulta",
@@ -301,24 +289,12 @@
       }
     },
 
-    "/agenda/paciente/{paciente_id}": {
+    "/agenda/agendamento_paciente": {
       "get": {
         "tags": ["Paciente"],
         "summary": "Ver todas as consultas agendadas de um paciente",
         "parameters": [
-          {
-            "name": "paciente_id",
-            "in": "path",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "description": "Filtrar por data (YYYY-MM-DD)"
-          }
+          
         ],
         "responses": {
           "200": { "description": "Lista de consultas do paciente" },
@@ -419,7 +395,7 @@
       }
     },
 
-    "/consulta/consultas": {
+    "/consulta/consultas_marcadas": {
       "get": {
         "tags": ["Secretaria"],
         "summary": "Listar todas as consultas agendadas",

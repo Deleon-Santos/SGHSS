@@ -73,7 +73,7 @@ def excluir_paciente(paciente_id):
 
 
 # Ver todas as consultas agendadas
-@consultas_secretaria_bp.route('/consulta/consultas', methods=['GET'])
+@consultas_secretaria_bp.route('/consulta/consultas_marcadas', methods=['GET'])
 def ver_consultas_agendadas():
     status_filtro = request.args.get('status')  # opcional: Agendada, Realizada, Cancelada
     query = Consulta.query
