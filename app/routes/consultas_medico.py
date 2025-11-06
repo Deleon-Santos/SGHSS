@@ -29,8 +29,9 @@ def finaliza_consulta(consulta_id):
         return jsonify({"erro": "Diagnóstico é obrigatório para finalizar a consulta."}), 400
     
     # Verifica se o médico autenticado é o mesmo que está tentando finalizar
-    if data.get('medico_id') != medico_id:
-        return jsonify({"erro": "Ação não autorizada para este médico."}), 403
+    if consulta.medico_id is not None and consulta.medico_id != medico_id:
+        return jsonify({"erro": "Ação não autorizada. Esta consulta está registrada para outro médico."}), 403
+    
     
     # Atualiza os dados da consulta
     consulta.diagnostico = data['diagnostico']
