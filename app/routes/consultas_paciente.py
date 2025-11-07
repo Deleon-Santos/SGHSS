@@ -13,6 +13,7 @@ consultas_paciente_bp = Blueprint('consultas_paciente', __name__)
 def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
+
 # o paciente pode agendar uma consulta
 @consultas_paciente_bp.route('/consulta/novo_agendamento', methods=['POST'])
 @jwt_required()
@@ -98,29 +99,7 @@ def consulta_agenda_especialidade(medico_id):
     ]
     return jsonify(resultado), 200
 
-
-#o paciente pode cancelar uma consulta
-@consultas_paciente_bp.route('/consulta/<int:consulta_id>/cancelamento', methods=['POST'])
-@jwt_required()
-def cancelamento(consulta_id):
-    paciente_id = get_jwt_identity()
-    data = request.json or {}
-    consulta = Consulta.query.get_or_404(consulta_id)
-
-    if 'consulta_id' not in data:
-        return jsonify({"erro": "consulta_id é obrigatório para cancelar a consulta."}), 400
-    
-    if paciente_id != data.get('paciente_id'):
-        return jsonify({"erro": f"Cancelamento autorizado apenas para o seu User_id {paciente_id}."}), 403
-    
-    consulta = Consulta.query.get_or_404(data['consulta_id'])
-    consulta.status = 'Cancelada'
-    db.session.commit()
-    return jsonify({"mensagem": f"Consulta {data['consulta_id']} cancelada com sucesso."}), 200
-
-
-# o paciente pode ver sua agenda de consultas
-@consultas_paciente_bp.route('/consulta/agenda_paciente', methods=['GET'])
+@consultas_paciente_bp.route('/consulta/agendamento_paciente', methods=['GET'])
 @jwt_required()
 def consulta_agendamento():
     paciente_id = get_jwt_identity()
@@ -149,3 +128,25 @@ def consulta_agendamento():
     ]
 
     return jsonify(resultado), 200
+
+#o paciente pode cancelar uma consulta
+@consultas_paciente_bp.route('/consulta/<int:consulta_id>/cancelamento', methods=['POST'])
+@jwt_required()
+def cancelamento(consulta_id):
+    paciente_id = get_jwt_identity()
+    data = request.json or {}
+    consulta = Consulta.query.get_or_404(consulta_id)
+
+    if 'consulta_id' not in data:
+        return jsonify({"erro": "consulta_id é obrigatório para cancelar a consulta."}), 400
+    
+    if paciente_id != data.get('paciente_id'):
+        return jsonify({"erro": f"Cancelamento autorizado apenas para o seu User_id {paciente_id}."}), 403
+    
+    consulta = Consulta.query.get_or_404(data['consulta_id'])
+    consulta.status = 'Cancelada'
+    db.session.commit()
+    return jsonify({"mensagem": f"Consulta {data['consulta_id']} cancelada com sucesso."}), 200
+
+
+# o paciente pode ver sua agenda de consultas

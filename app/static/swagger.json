@@ -108,32 +108,7 @@
       }
     },
 
-    "/consulta/agenda_medica/{medico_id}": {
-      "get": {
-        "tags": ["Paciente"],
-        "summary": "Listar agenda de um médico por especialidade",
-        "parameters": [
-          {
-            "name": "medico_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID do médico"
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "description": "Filtrar por data (YYYY-MM-DD)"
-          }
-        ],
-        "responses": {
-          "200": { "description": "Lista de horários disponíveis" },
-          "400": { "description": "Formato de data inválido" }
-        }
-      }
-    },
+    
     "/consulta/{consulta_id}/atendimento": {
       "post": {
         "tags": ["Medico"],
@@ -240,7 +215,79 @@
       }
     },
 
-    
+    "/consulta/lista_medico_credenciado": {
+      "get": {
+        "tags": ["Paciente"],
+        "summary": "Listar todos os médicos credenciados",
+        "description": "Retorna uma lista de todos os médicos cadastrados, incluindo id, nome e especialidade.",
+        "responses": {
+          "200": {
+            "description": "Lista de médicos retornada com sucesso",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer", "example": 1 },
+                  "nome": { "type": "string", "example": "Dra. Maria Magalhães" },
+                  "especialidade": { "type": "string", "example": "Pediatria" }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Paciente não identificado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "erro": { "type": "string", "example": "Paciente não identificado." }
+              }
+            }
+          }
+        }
+        
+      }
+    },
+    "/consulta/agendamento_paciente": {
+      "get": {
+        "tags": ["Paciente"],
+        "summary": "Ver todas as consultas agendadas de um paciente",
+        "parameters": [
+          
+        ],
+        "responses": {
+          "200": { "description": "Lista de consultas do paciente" },
+          "400": { "description": "Erro de formato de data" }
+        }
+      }
+    },
+
+    "/consulta/agenda_medica/{medico_id}": {
+      "get": {
+        "tags": ["Paciente"],
+        "summary": "Listar agenda de um médico por especialidade",
+        "parameters": [
+          {
+            "name": "medico_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do médico"
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "type": "string",
+            "format": "date",
+            "description": "Filtrar por data (YYYY-MM-DD)"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de horários disponíveis" },
+          "400": { "description": "Formato de data inválido" }
+        }
+      }
+    },
 
     "/consulta/novo_agendamento": {
       "post": {
@@ -288,21 +335,9 @@
         }
       }
     },
-
-    "/agenda/agendamento_paciente": {
-      "get": {
-        "tags": ["Paciente"],
-        "summary": "Ver todas as consultas agendadas de um paciente",
-        "parameters": [
-          
-        ],
-        "responses": {
-          "200": { "description": "Lista de consultas do paciente" },
-          "400": { "description": "Erro de formato de data" }
-        }
-      }
-    },
-
+    
+    
+    
     "/cadastra/medico": {
       "post": {
         "tags": ["Secretaria"],
