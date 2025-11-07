@@ -17,14 +17,13 @@ def swagger_redirect():
 
 # Rotinas de atendimento Medico
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/atendimento', methods=['POST'])
-@jwt_required()  # 🔐 garante que o médico esteja autenticado
+@jwt_required() 
 def finaliza_consulta(consulta_id):
     usuario_id = get_jwt_identity()
     medico_id = usuario_id['id']
     consulta = Consulta.query.get_or_404(consulta_id)
     data = request.get_json() or {}
 
-    # Validação do diagnóstico
     if 'diagnostico' not in data:
         return jsonify({"erro": "Diagnóstico é obrigatório para finalizar a consulta."}), 400
     
@@ -32,8 +31,6 @@ def finaliza_consulta(consulta_id):
     if consulta.medico_id is not None and consulta.medico_id != medico_id:
         return jsonify({"erro": "Ação não autorizada. Esta consulta está registrada para outro médico."}), 403
     
-    
-    # Atualiza os dados da consulta
     consulta.diagnostico = data['diagnostico']
     consulta.status = 'Realizada'
     consulta.medico_id = medico_id  # garante que o ID vem do token, não do body
@@ -44,65 +41,68 @@ def finaliza_consulta(consulta_id):
 
 
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/prescreve', methods=['POST'])
-@jwt_required()  # 🔐 garante que o médico esteja autenticado
+@jwt_required()  
 def prescreve_medicamento(consulta_id):
-    medico_id = get_jwt_identity()
+    usuario_id = get_jwt_identity()
+    medico_id = usuario_id['id']
     consulta = Consulta.query.get_or_404(consulta_id)
-    data = request.json or {}
+    data = request.get_json() or {}
 
-    if not all(k in data for k in ['nome', 'dosagem', 'medico_id']):
-        return jsonify({"erro": "Dados obrigatórios faltando (nome, dosagem, medico_id)."}), 400
+    if not all(k in data for k in ['medicacao', 'dosagem', 'orientacoes']):
+        return jsonify({"erro": "Dados obrigatórios faltando ('medicacao', 'dosagem', 'orientacoes')."}), 400
     
-    if data['medico_id'] != medico_id:
+    if consulta.medico_id != medico_id:
         return jsonify({"erro": "Ação não autorizada para este médico."}), 403
     
     medicamento = Medicamento(
-        nome=data['nome'],
+        medicacao=data['medicacao'],
         dosagem=data['dosagem'],
         orientacoes=data.get('orientacoes'),
         consulta_id=consulta_id,
-        medico_id=data['medico_id']
+        medico_id=medico_id
     )
     db.session.add(medicamento)
     db.session.commit()
-    return jsonify({"mensagem": "Medicamento prescrito com sucesso.", "id": medicamento.id}), 201
+    return jsonify({"mensagem": "Medicamento prescrito com sucesso.", "medicamento":{"nome": medicamento.medicacao, 
+                                                                                     "dosagem": medicamento.dosagem, 
+                                                                                     "orientacoes": medicamento.orientacoes  
+                                                                       }}), 201
 
 
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/solicita_exame', methods=['POST'])
 @jwt_required()  # 🔐 garante que o médico esteja autenticado
 def solicita_exame(consulta_id):
-    medico_id = get_jwt_identity()
+    usuario_id = get_jwt_identity()
+    medico_id = usuario_id['id']
     consulta = Consulta.query.get_or_404(consulta_id)
-    data = request.json or {}
+    data = request.get_json() or {}
 
-    if not all(k in data for k in ['tipo', 'medico_id']):
-        return jsonify({"erro": "Dados obrigatórios faltando (tipo, medico_id)."}), 400
-    if data['medico_id'] != medico_id:
+    if not all(k in data for k in ['exame']):
+        return jsonify({"erro": "Dados obrigatórios faltando ('Exame')."}), 400
+    
+    if consulta.medico_id != medico_id:
         return jsonify({"erro": "Ação não autorizada para este médico."}), 403
+    
     exame = Exame(
-        tipo=data['tipo'],
+        tipo=data['exame'],
         data_solicitacao=date.today(),
         consulta_id=consulta_id,
-        medico_id=data['medico_id']
+        medico_id=medico_id
     )
     db.session.add(exame)
     db.session.commit()
-    return jsonify({"mensagem": "Exame solicitado com sucesso.", "id": exame.id}), 201
+    return jsonify({"mensagem": "Exame solicitado com sucesso.", "exame":{"nome": exame.tipo,
+                                                                          "data": exame.data_solicitacao}}), 201
 
 
 @consultas_medico_bp.route('/consulta/agenda_medica', methods=['GET'])
-@jwt_required()  # 🔐 garante que o médico esteja autenticado
+@jwt_required()  
 def consulta_agenda():
-    # ✅ Recupera o ID do médico logado do token JWT
     usuario = get_jwt_identity()
     medico_id = usuario['id']
-
     data_filtro = request.args.get('data')
-    
-    # Cria a query base filtrando pelo médico logado
     query = Consulta.query.filter_by(medico_id=medico_id)
 
-    # Se o usuário passou um filtro de data, aplica na consulta
     if data_filtro:
         try:
             data_obj = datetime.strptime(data_filtro, '%Y-%m-%d').date()
@@ -110,10 +110,8 @@ def consulta_agenda():
         except ValueError:
             return jsonify({"erro": "Formato de data inválido. Use YYYY-MM-DD."}), 400
 
-    # Ordena por data e hora
     agenda = query.order_by(Consulta.data, Consulta.hora).all()
 
-    # Monta o resultado em JSON
     resultado = [
         {
             "consulta_id": c.medico.id,
