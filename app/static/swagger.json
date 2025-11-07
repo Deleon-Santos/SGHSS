@@ -175,7 +175,7 @@
         "description": "Permite ao médico prescrever um novo medicamento durante uma consulta.",
         "parameters": [
           {
-            "consulta_id": "consulta_id",
+            "name": "consulta_id",
             "in": "path",
             "required": true,
             "type": "integer",
@@ -193,7 +193,7 @@
                 "orientacoes": { "type": "string" }
                 
               },
-              "required": ["medicacao", "dosagem","orientacoes"]
+              "required": ["medicacao", "dosagem", "orientacoes"]
             }
           }
         ],
@@ -212,7 +212,7 @@
         "description": "Permite ao médico solicitar um exame durante o atendimento de uma consulta.",
         "parameters": [
           {
-            "consulta_id": "consulta_id",
+            "name": "consulta_id",
             "in": "path",
             "required": true,
             "type": "integer",
@@ -225,7 +225,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "tipo": { "exame": "string" }
+                "exame": { "type": "string" }
                 
               },
               "required": ["Exame"]
