@@ -388,7 +388,7 @@
       }
     },
 
-    "/consulta/medico/{medico_id}": {
+    "/deleta/medico/{medico_id}": {
       "delete": {
         "tags": ["Secretaria"],
         "summary": "Excluir médico pelo ID",
@@ -437,7 +437,7 @@
       }
     },
 
-    "/consulta/paciente/{paciente_id}": {
+    "/deleta/paciente/{paciente_id}": {
       "delete": {
         "tags": ["Secretaria"],
         "summary": "Excluir paciente pelo ID",
@@ -456,7 +456,7 @@
       }
     },
 
-    "/consulta/cadastro_usuarios": {
+    "/consulta/cadastro_geral_usuarios": {
       "get": {
         "tags": ["Secretaria"],
         "summary": "Listar todos os usuários do sistema",

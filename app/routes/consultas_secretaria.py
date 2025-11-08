@@ -54,7 +54,7 @@ def cadastrar_medico():
 
 
 # Excluir médico
-@consultas_secretaria_bp.route('/consulta/medico/<int:medico_id>', methods=['DELETE'])
+@consultas_secretaria_bp.route('/deleta/medico/<int:medico_id>', methods=['DELETE'])
 @jwt_required()
 def excluir_medico(medico_id):
     usuario = get_jwt_identity() or {}
@@ -104,7 +104,7 @@ def cadastrar_paciente():
 
 
 # Excluir paciente
-@consultas_secretaria_bp.route('/consulta/paciente/<int:paciente_id>', methods=['DELETE'])
+@consultas_secretaria_bp.route('/deleta/paciente/<int:paciente_id>', methods=['DELETE'])
 @jwt_required()
 def excluir_paciente(paciente_id):
     usuario = get_jwt_identity() or {}
@@ -155,7 +155,7 @@ def ver_consultas_agendadas():
 
     return jsonify(resultado), 200
 
-@consultas_secretaria_bp.route('/consulta/cadastro_usuarios', methods=['GET'])
+@consultas_secretaria_bp.route('/consulta/cadastro_geral_usuarios', methods=['GET'])
 @jwt_required()
 def listar_usuarios():
     usuario = get_jwt_identity() or {}
