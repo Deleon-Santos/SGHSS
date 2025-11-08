@@ -13,22 +13,20 @@ consultas_secretaria_bp = Blueprint('consultas_secretaria', __name__)
 def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
+# Cadstrar uma novo medico é permitido apenas a membros da secretaria
 @consultas_secretaria_bp.route('/cadastra/medico', methods=['POST'])
 @jwt_required()
 def cadastrar_medico():
     data = request.get_json() or {}
-    usuario = get_jwt_identity()
-    secretario_matricula = usuario['matricula']
-    secretario_matricula = usuario.get('matricula')
-    if not secretario_matricula:
+    usuario = get_jwt_identity() or {}
+    if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
-
-    # 🔹 Verifica diretamente se existe no banco
-    secretario = Secretario.query.filter_by(matricula=secretario_matricula).first()
-    if not secretario:
+    
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
         return jsonify({"erro": "Acesso negado. Apenas secretários podem cadastrar médicos."}), 403
-
-    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'usuario', 'senha']
+  
+    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'usuario', 'senha', ]
     if not all(campo in data for campo in campos_obrigatorios):
         return jsonify({
             "erro": "Campos obrigatórios faltando. Use: nome, especialidade, crm, usuario, senha."
@@ -42,7 +40,8 @@ def cadastrar_medico():
         especialidade=data['especialidade'],
         crm=data['crm'],
         usuario=data['usuario'],
-        senha=data['senha']
+        senha=data['senha'],
+        nivel_acesso='medico'
     )
 
     db.session.add(novo_medico)
@@ -56,7 +55,15 @@ def cadastrar_medico():
 
 # Excluir médico
 @consultas_secretaria_bp.route('/consulta/medico/<int:medico_id>', methods=['DELETE'])
+@jwt_required()
 def excluir_medico(medico_id):
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
     medico = Medico.query.get_or_404(medico_id)
     db.session.delete(medico)
     db.session.commit()
@@ -65,11 +72,19 @@ def excluir_medico(medico_id):
 
 # Cadastrar paciente
 @consultas_secretaria_bp.route('/cadastra/paciente', methods=['POST'])
+@jwt_required()
 def cadastrar_paciente():
-    data = request.json or {}
+    data = request.get_json() or {}
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
 
-    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento']):
-        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento)."}), 400
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
+    
+    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento','nivel_acesso']):
+        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento,'nivel_acesso)."}), 400
 
     try:
         data_nasc = datetime.strptime(data['data_nascimento'], '%Y-%m-%d').date()
@@ -79,7 +94,8 @@ def cadastrar_paciente():
     paciente = Paciente(
         nome=data['nome'],
         cpf=data['cpf'],
-        data_nascimento=data_nasc
+        data_nascimento=data_nasc,
+        nivel_acesso='paciente'
     )
 
     db.session.add(paciente)
@@ -89,7 +105,16 @@ def cadastrar_paciente():
 
 # Excluir paciente
 @consultas_secretaria_bp.route('/consulta/paciente/<int:paciente_id>', methods=['DELETE'])
+@jwt_required()
 def excluir_paciente(paciente_id):
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
+    
     paciente = Paciente.query.get_or_404(paciente_id)
     db.session.delete(paciente)
     db.session.commit()
@@ -98,7 +123,16 @@ def excluir_paciente(paciente_id):
 
 # Ver todas as consultas agendadas
 @consultas_secretaria_bp.route('/consulta/consultas_marcadas', methods=['GET'])
+@jwt_required()
 def ver_consultas_agendadas():
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
+    
     status_filtro = request.args.get('status')  # opcional: Agendada, Realizada, Cancelada
     query = Consulta.query
 
@@ -122,8 +156,15 @@ def ver_consultas_agendadas():
     return jsonify(resultado), 200
 
 @consultas_secretaria_bp.route('/consulta/cadastro_usuarios', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 def listar_usuarios():
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a secretarios."}), 403
     
     tipo_filtro = request.args.get('tipo')
 

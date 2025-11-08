@@ -9,7 +9,7 @@ class Paciente(db.Model):
     cpf = db.Column(db.String(20), unique=True)
     usuario = db.Column(db.String(80), unique=True, nullable=False)
     senha = db.Column(db.String(20), nullable=False)
-
+    nivel_acesso = db.Column(db.String(20), nullable=False, default='paciente')
 
     consultas = db.relationship('Consulta', back_populates='paciente')
 

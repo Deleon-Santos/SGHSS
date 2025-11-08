@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "SGHSS - API de Consultas",
-    "description": "API RESTful para gestão de consultas médicas — médicos, pacientes e secretarias.",
+    "title": "SGHSS - API PARA GESTÃO HOSPITALAR",
+    "description": "API RESTful para gestão de consultas médicas — médicos, pacientes e secretarías.",
     "version": "1.0.0"
   },
   "host": "127.0.0.1:5000",
@@ -373,9 +373,11 @@
                 "especialidade": { "type": "string" },
                 "crm": { "type": "string" },
                 "usuario": { "type": "string" },
-                "senha": { "type": "string" }
+                "senha": { "type": "string" },
+                "nivel_acesso": { "type": "string" }
+
               },
-              "required": ["nome", "especialidade", "crm", "usuario", "senha"]
+              "required": ["nome", "especialidade", "crm", "usuario", "senha", "nivel_acesso"]
             }
           }
         ],
@@ -421,9 +423,10 @@
                 "cpf": { "type": "string" },
                 "data_nascimento": { "type": "string", "format": "date" },
                 "usuario": { "type": "string" },
-                "senha": { "type": "string" }
+                "senha": { "type": "string" },
+                "nivel_acesso": { "type": "string" }
               },
-              "required": ["nome", "cpf", "data_nascimento", "usuario", "senha"]
+              "required": ["nome", "cpf", "data_nascimento", "usuario", "senha", "nivel_acesso"]
             }
           }
         ],

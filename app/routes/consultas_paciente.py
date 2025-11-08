@@ -18,11 +18,16 @@ def swagger_redirect():
 @consultas_paciente_bp.route('/consulta/novo_agendamento', methods=['POST'])
 @jwt_required()
 def agendamento():
-    paciente_id = get_jwt_identity()
-    data = request.json or {}
-    if not paciente_id :
-        return jsonify({"erro": "Paciente não identificado."}), 403
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     
+    paciente_id = usuario['paciente_id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'paciente':
+        return jsonify({"erro": "Acesso negado. Rota destinada a pacientes."}), 403
+    
+    data = request.json or {}     
     if not all(k in data for k in ['medico_id', 'data', 'hora']):
         return jsonify({"erro": "Dados obrigatórios faltando (medico_id, data, hora)."}), 400
     
@@ -51,9 +56,14 @@ def agendamento():
 @consultas_paciente_bp.route('/consulta/lista_medico_credenciado', methods=['GET'])
 @jwt_required()
 def consulta_lista_medico_credenciado():
-    paciente_id = get_jwt_identity()
-    if not paciente_id:
-        return jsonify({"erro": "Paciente não identificado."}), 403
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+ 
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'paciente':
+        return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
+    
 
     medicos = Medico.query.all()
 
@@ -69,13 +79,18 @@ def consulta_lista_medico_credenciado():
     return jsonify(lista_medicos), 200
    
 
-# O parciente deve verificar a ajenda do medico de acordo com a especialidade
+# O parciente deve verificar a agenda do medico de acordo com a especialidade
 @consultas_paciente_bp.route('/consulta/agenda_medica/<int:medico_id>', methods=['GET'])
 @jwt_required()
 def consulta_agenda_especialidade(medico_id):
-    paciente_id = get_jwt_identity()
-    if not paciente_id:
-        return jsonify({"erro": "Paciente não identificado."}), 403
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'paciente':
+        return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
+    
     data_filtro = request.args.get('data')
     query = Consulta.query.filter_by(medico_id=medico_id)
 
@@ -99,11 +114,19 @@ def consulta_agenda_especialidade(medico_id):
     ]
     return jsonify(resultado), 200
 
+#o pacinente pode ver sua agenda de consultas
 @consultas_paciente_bp.route('/consulta/agendamento_paciente', methods=['GET'])
 @jwt_required()
 def consulta_agendamento():
-    paciente_id = get_jwt_identity()
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     
+    paciente_id = usuario['paciente_id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'paciente':
+        return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
+     
     data_filtro = request.args.get('data')
     query = Consulta.query.filter_by(paciente_id=paciente_id)
 
@@ -133,8 +156,15 @@ def consulta_agendamento():
 @consultas_paciente_bp.route('/consulta/<int:consulta_id>/paciente_cancelamento', methods=['POST'])
 @jwt_required()
 def cancelamento_paciente(consulta_id):
-    usuario = get_jwt_identity()
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    
     paciente_id = usuario['paciente_id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'paciente':
+        return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
+    
     data = request.json or {}
     consulta = Consulta.query.get_or_404(consulta_id)
 
@@ -150,4 +180,4 @@ def cancelamento_paciente(consulta_id):
     return jsonify({"mensagem": f"Consulta {data['consulta_id']} cancelada com sucesso."}), 200
 
 
-# o paciente pode ver sua agenda de consultas
+

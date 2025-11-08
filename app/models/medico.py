@@ -9,7 +9,7 @@ class Medico(db.Model):
     especialidade = db.Column(db.String(80))
     usuario = db.Column(db.String(80), unique=True, nullable=False)
     senha = db.Column(db.String(20), nullable=False)
-
+    nivel_acesso = db.Column(db.String(20), nullable=False, default='medico')
     consultas = db.relationship('Consulta', back_populates='medico')
     def __repr__(self):
         return f'<Medico {self.nome}>'

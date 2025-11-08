@@ -19,8 +19,13 @@ def swagger_redirect():
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/atendimento', methods=['POST'])
 @jwt_required() 
 def finaliza_consulta(consulta_id):
-    usuario_id = get_jwt_identity()
-    medico_id = usuario_id['id']
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    medico_id = usuario['id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'medico':
+        return jsonify({"erro": "Acesso negado. Rota destinada a medicos."}), 403
     consulta = Consulta.query.get_or_404(consulta_id)
     data = request.get_json() or {}
 
@@ -43,11 +48,16 @@ def finaliza_consulta(consulta_id):
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/prescreve', methods=['POST'])
 @jwt_required()  
 def prescreve_medicamento(consulta_id):
-    usuario_id = get_jwt_identity()
-    medico_id = usuario_id['id']
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    medico_id = usuario['id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'medico':
+        return jsonify({"erro": "Acesso negado. Rota destinada a medicos."}), 403
     consulta = Consulta.query.get_or_404(consulta_id)
     data = request.get_json() 
-    print(data)
+    
     if not all(k in data for k in ['medicacao', 'dosagem', 'orientacoes']):
         return jsonify({"erro": "Dados obrigatórios faltando ('medicacao', 'dosagem', 'orientacoes')."}), 400
     
@@ -73,8 +83,13 @@ def prescreve_medicamento(consulta_id):
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/solicita_exame', methods=['POST'])
 @jwt_required()  
 def solicita_exame(consulta_id):
-    usuario_id = get_jwt_identity()
-    medico_id = usuario_id['id']
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    medico_id = usuario['id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'medico':
+        return jsonify({"erro": "Acesso negado. Rota destinada a medicos."}), 403
     consulta = Consulta.query.get_or_404(consulta_id)
     data = request.get_json() or {}
 
@@ -100,8 +115,13 @@ def solicita_exame(consulta_id):
 @consultas_medico_bp.route('/consulta/agenda_medica', methods=['GET'])
 @jwt_required()  
 def consulta_agenda():
-    usuario = get_jwt_identity()
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     medico_id = usuario['id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'medico':
+        return jsonify({"erro": "Acesso negado. Rota destinada a medico."}), 403
     data_filtro = request.args.get('data')
     query = Consulta.query.filter_by(medico_id=medico_id)
 
@@ -135,8 +155,13 @@ def consulta_agenda():
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/medico_cancelamento', methods=['POST'])
 @jwt_required()
 def cancelamento_medico(consulta_id):
-    usuario = get_jwt_identity()
-    medico_id = usuario['medico_id']
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    medico_id = usuario['id']
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'medico':
+        return jsonify({"erro": "Acesso negado. Rota destinada a medico."}), 403
     data = request.json or {}
     consulta = Consulta.query.get_or_404(consulta_id)
 

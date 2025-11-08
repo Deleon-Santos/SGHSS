@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.database.data import seed_db
 from .config import Config
 from .extensions import db, jwt
-from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 
 # 🔐 garante que o médico esteja autenticado
@@ -25,13 +25,17 @@ def create_app():
         config={'app_name': "SGHSS - API de Consultas"}
     )
     app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
-
-   
+    
+    @app.route('/')
+    def index():
+        return redirect('/docs')
+    
     from app.routes.consultas_medico import consultas_medico_bp
     from app.routes.consultas_paciente import consultas_paciente_bp
     from app.routes.consultas_secretaria import consultas_secretaria_bp
     from app.routes.cadastro_autorizacao_tokens import novo_usuario_bp
     from app.routes.login import login_bp
+    
     app.register_blueprint(consultas_medico_bp, url_prefix="/api")
     app.register_blueprint(consultas_paciente_bp, url_prefix="/api")
     app.register_blueprint(consultas_secretaria_bp, url_prefix="/api")

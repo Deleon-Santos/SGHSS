@@ -38,6 +38,7 @@ def login():
     identity_data = {
         "id": user.id,
         "nome": nome,
+        "nivel_acesso": user.nivel_acesso,  
         "tipo": user.__class__.__name__
     }
 
