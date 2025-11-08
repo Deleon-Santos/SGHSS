@@ -44,11 +44,11 @@
               "properties": {
                 "NomeSobrenome": {
                   "type": "string",
-                  "example": "MariaMagalhaes"
+                  "example": "DeleonSantos"
                 },
                 "Senha": {
                   "type": "string",
-                  "example": "CRM456"
+                  "example": "4556949"
                 }
               },
               "required": ["nome", "senha"]
@@ -214,7 +214,26 @@
         }
       }
     },
-
+    
+    "/consulta/{consulta_id}/medico_cancelamento": {
+      "post": {
+        "tags": ["Medico"],
+        "summary": "Cancelar uma consulta",
+        "parameters": [
+          {
+            "name": "consulta_id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Consulta cancelada com sucesso" },
+          "404": { "description": "Consulta não encontrada" }
+        }
+      }
+    },
+ 
     "/consulta/lista_medico_credenciado": {
       "get": {
         "tags": ["Paciente"],
@@ -317,7 +336,7 @@
       }
     },
 
-    "/consulta/{consulta_id}/cancelamento": {
+    "/consulta/{consulta_id}/paciente_cancelamento": {
       "post": {
         "tags": ["Paciente"],
         "summary": "Cancelar uma consulta",
@@ -352,9 +371,11 @@
               "properties": {
                 "nome": { "type": "string" },
                 "especialidade": { "type": "string" },
-                "crm": { "type": "string" }
+                "crm": { "type": "string" },
+                "usuario": { "type": "string" },
+                "senha": { "type": "string" }
               },
-              "required": ["nome", "especialidade", "crm"]
+              "required": ["nome", "especialidade", "crm", "usuario", "senha"]
             }
           }
         ],
@@ -384,7 +405,7 @@
       }
     },
 
-    "/consulta/paciente": {
+    "/cadastra/paciente": {
       "post": {
         "tags": ["Secretaria"],
         "summary": "Cadastrar novo paciente",
@@ -398,9 +419,11 @@
               "properties": {
                 "nome": { "type": "string" },
                 "cpf": { "type": "string" },
-                "data_nascimento": { "type": "string", "format": "date" }
+                "data_nascimento": { "type": "string", "format": "date" },
+                "usuario": { "type": "string" },
+                "senha": { "type": "string" }
               },
-              "required": ["nome", "cpf", "data_nascimento"]
+              "required": ["nome", "cpf", "data_nascimento", "usuario", "senha"]
             }
           }
         ],
@@ -430,6 +453,26 @@
       }
     },
 
+    "/consulta/cadastro_usuarios": {
+      "get": {
+        "tags": ["Secretaria"],
+        "summary": "Listar todos os usuários do sistema",
+        "description": "Retorna todos os usuários cadastrados (pacientes, médicos e secretarias), com opção de filtrar por tipo.",
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "query",
+            "type": "string",
+            "enum": ["paciente", "medico", "secretaria"],
+            "description": "Filtrar usuários por tipo"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de usuários retornada com sucesso" },
+          "403": { "description": "Acesso não autorizado" }
+        }
+      }
+    },
     "/consulta/consultas_marcadas": {
       "get": {
         "tags": ["Secretaria"],

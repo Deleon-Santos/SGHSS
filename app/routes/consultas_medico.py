@@ -129,3 +129,24 @@ def consulta_agenda():
     ]
 
     return jsonify(resultado), 200
+
+
+#o medico pode cancelar uma consulta
+@consultas_medico_bp.route('/consulta/<int:consulta_id>/medico_cancelamento', methods=['POST'])
+@jwt_required()
+def cancelamento_medico(consulta_id):
+    usuario = get_jwt_identity()
+    medico_id = usuario['medico_id']
+    data = request.json or {}
+    consulta = Consulta.query.get_or_404(consulta_id)
+
+    if 'consulta_id' not in data:
+        return jsonify({"erro": "consulta_id é obrigatório para cancelar a consulta."}), 400
+    
+    if medico_id != data.get('medico_id'):
+        return jsonify({"erro": f"Cancelamento autorizado apenas para o seu User_id ."}), 403
+    
+    consulta = Consulta.query.get_or_404(data['consulta_id'])
+    consulta.status = 'Cancelada'
+    db.session.commit()
+    return jsonify({"mensagem": f"Consulta {data['consulta_id']} cancelada com sucesso."}), 200
