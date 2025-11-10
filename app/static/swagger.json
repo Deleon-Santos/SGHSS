@@ -93,7 +93,7 @@
       "BearerAuth": []
     }
   ],
-  "/consulta/agenda_medica": {
+  "/consulta/consulta_agenda_medica": {
       "get": {
         "tags": ["Medico"],
         "summary": "Consultar agenda do médico",
@@ -143,7 +143,7 @@
       }
     },
 
-    "/consulta/{consulta_id}/prescreve": {
+    "/consulta/{consulta_id}/prescreve_tratamento": {
       "post": {
         "tags": ["Medico"],
         "summary": "Prescrever medicamento",
@@ -215,7 +215,7 @@
       }
     },
     
-    "/consulta/{consulta_id}/medico_cancelamento": {
+    "/consulta/{consulta_id}/cancelamento_consulta": {
       "post": {
         "tags": ["Medico"],
         "summary": "Cancelar uma consulta",
