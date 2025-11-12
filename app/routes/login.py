@@ -16,7 +16,7 @@ def login():
         return jsonify({'erro': 'Requisição sem corpo JSON.'}), 400
 
     # Pega os campos com segurança (aceita minúsculas ou maiúsculas)
-    nome = data.get('NomeSobrenome') or data.get('nome') or data.get('usuario')
+    nome = data.get('email') or data.get('nome') or data.get('usuario')
     senha = data.get('Senha') or data.get('senha')
 
     # Validação

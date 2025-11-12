@@ -14,19 +14,19 @@ def seed_db(app):
             return
         
         # Criação do secretário
-        sec1 = Secretario(nome='Deleon Santos', matricula='4556949', usuario= 'DeleonSantos', senha='4556949', nivel_acesso='secretario')
+        sec1 = Secretario(nome='Deleon Santos', matricula='4556949', usuario= 'Deleon@Santos', senha='4556949', nivel_acesso='secretario')
         db.session.add(sec1)
         
         # Criação dos médicos
-        med1 = Medico(nome='Dr. João Alcantara', crm='CRM123', especialidade='clinico_geral', usuario='JoaoAlcantara', senha='CRM123', nivel_acesso='medico')
-        med2 = Medico(nome='Dr. Maria Magalhaes', crm='CRM456', especialidade='pediatria', usuario='MariaMagalhaes', senha='CRM456', nivel_acesso='medico')
-        med3 = Medico(nome='Dr. Pedro Cardoso', crm='CRM789', especialidade='obstetricia', usuario='PedroCardoso', senha='CRM789', nivel_acesso='medico')
+        med1 = Medico(nome='Dr. João Alcantara', crm='CRM123', especialidade='clinico_geral', usuario='Joao@Alcantara', senha='CRM123', nivel_acesso='medico')
+        med2 = Medico(nome='Dr. Maria Magalhaes', crm='CRM456', especialidade='pediatria', usuario='Maria@Magalhaes', senha='CRM456', nivel_acesso='medico')
+        med3 = Medico(nome='Dr. Pedro Cardoso', crm='CRM789', especialidade='obstetricia', usuario='Pedro@Cardoso', senha='CRM789', nivel_acesso='medico')
         db.session.add_all([med1, med2, med3])
 
         # Criação dos pacientes
-        pac1 = Paciente(nome='Alice Souza', data_nascimento=date(2000, 12, 12), cpf='12345678901', usuario='AliceSouza', senha='12345678901', nivel_acesso='paciente')
-        pac2 = Paciente(nome='Bruno Santos', data_nascimento=date(2000, 8, 12), cpf='23456789012', usuario='BrunoSantos', senha='23456789012', nivel_acesso='paciente')
-        pac3 = Paciente(nome='Carla Castro' , data_nascimento=date(2000, 10, 12), cpf='34567890123', usuario='CarlaCastro', senha='34567890123', nivel_acesso='paciente')
+        pac1 = Paciente(nome='Alice Souza', data_nascimento=date(2000, 12, 12), cpf='12345678901', usuario='Alice@Souza', senha='12345678901', nivel_acesso='paciente')
+        pac2 = Paciente(nome='Bruno Santos', data_nascimento=date(2000, 8, 12), cpf='23456789012', usuario='Bruno@Santos', senha='23456789012', nivel_acesso='paciente')
+        pac3 = Paciente(nome='Carla Castro' , data_nascimento=date(2000, 10, 12), cpf='34567890123', usuario='Carla@Castro', senha='34567890123', nivel_acesso='paciente')
         db.session.add_all([pac1, pac2, pac3])
 
         db.session.commit()  # Precisa para pegar IDs

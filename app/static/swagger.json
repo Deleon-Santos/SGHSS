@@ -42,16 +42,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "NomeSobrenome": {
+                "email": {
                   "type": "string",
-                  "example": "DeleonSantos"
+                  "example": "Deleon@Santos"
                 },
-                "Senha": {
+                "senha": {
                   "type": "string",
                   "example": "4556949"
                 }
               },
-              "required": ["nome", "senha"]
+              "required": ["email", "senha"]
             }
           }
         ],
@@ -357,7 +357,7 @@
     
     
     
-    "/cadastra/medico": {
+    "/cadastra/novo_medico": {
       "post": {
         "tags": ["Secretaria"],
         "summary": "Cadastrar novo médico",
@@ -372,7 +372,7 @@
                 "nome": { "type": "string" },
                 "especialidade": { "type": "string" },
                 "crm": { "type": "string" },
-                "usuario": { "type": "string" },
+                "email": { "type": "string" },
                 "senha": { "type": "string" },
                 "nivel_acesso": { "type": "string" }
 
@@ -407,7 +407,7 @@
       }
     },
 
-    "/cadastra/paciente": {
+    "/cadastra/novo_paciente": {
       "post": {
         "tags": ["Secretaria"],
         "summary": "Cadastrar novo paciente",
@@ -422,11 +422,11 @@
                 "nome": { "type": "string" },
                 "cpf": { "type": "string" },
                 "data_nascimento": { "type": "string", "format": "date" },
-                "usuario": { "type": "string" },
+                "email": { "type": "string" },
                 "senha": { "type": "string" },
                 "nivel_acesso": { "type": "string" }
               },
-              "required": ["nome", "cpf", "data_nascimento", "usuario", "senha", "nivel_acesso"]
+              "required": ["nome", "cpf", "data_nascimento", "email", "senha", "nivel_acesso"]
             }
           }
         ],

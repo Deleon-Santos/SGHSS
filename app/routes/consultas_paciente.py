@@ -31,9 +31,6 @@ def agendamento():
     if not all(k in data for k in ['medico_id', 'data', 'hora']):
         return jsonify({"erro": "Dados obrigatórios faltando (medico_id, data, hora)."}), 400
     
-    if paciente_id != data.get('paciente_id'):
-        return jsonify({"erro": f"Agendamento autrizado apena para o seu User_id."}), 403
-    
     try:
         data_consulta = datetime.strptime(data['data'], '%Y-%m-%d').date()
         hora_consulta = datetime.strptime(data['hora'], '%H:%M').time()
@@ -64,14 +61,12 @@ def consulta_lista_medico_credenciado():
     if usuario_nivel != 'paciente':
         return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
     
-
     medicos = Medico.query.all()
-
     lista_medicos = []
     for medico in medicos:
         lista_medicos.append({
             "id": medico.id,
-            "nome": medico.nome,
+            "medico": medico.nome,
             "crm": medico.crm,
             "especialidade": medico.especialidade,
         })
@@ -106,6 +101,7 @@ def consulta_agenda_especialidade(medico_id):
     resultado = [
         {
             "id": c.id,
+            "medico": c.medico.nome if c.medico else None,
             "data": str(c.data),
             "hora": str(c.hora),
             "status": c.status
@@ -141,7 +137,7 @@ def consulta_agendamento():
 
     resultado = [
         {
-            "id": c.id,
+            "consulta_id": c.id,
             "medico": c.medico.nome if c.medico else None,
             "data": str(c.data),
             "hora": str(c.hora),
@@ -165,19 +161,24 @@ def cancelamento_paciente(consulta_id):
     if usuario_nivel != 'paciente':
         return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
     
-    data = request.json or {}
-    consulta = Consulta.query.get_or_404(consulta_id)
+    
+    consulta = Consulta.query.filter_by(id=consulta_id).first()
+    if not consulta:
+        return jsonify({"erro": f"Consulta ID {consulta_id} não encontrada."}), 404
 
-    if 'consulta_id' not in data:
-        return jsonify({"erro": "consulta_id é obrigatório para cancelar a consulta."}), 400
+    if consulta.paciente_id != paciente_id:
+        return jsonify({"erro": "Cancelamento autorizado apenas para o seu User_id."}), 403
     
-    if paciente_id != data.get('paciente_id'):
-        return jsonify({"erro": f"Cancelamento autorizado apenas para o seu User_id ."}), 403
+    if consulta.status == 'Cancelada':
+        return jsonify({"erro": f"Consulta ID {consulta_id} já está cancelada."}), 400  
     
-    consulta = Consulta.query.get_or_404(data['consulta_id'])
     consulta.status = 'Cancelada'
     db.session.commit()
-    return jsonify({"mensagem": f"Consulta {data['consulta_id']} cancelada com sucesso."}), 200
+    return jsonify({"mensagem": f"Consulta {consulta_id} cancelada com sucesso.","consulta": {
+            "id": consulta.id,
+            "paciente_id": consulta.paciente_id,
+            "status": consulta.status
+        }}), 200
 
 
 

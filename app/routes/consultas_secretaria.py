@@ -14,10 +14,9 @@ def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
 # Cadstrar uma novo medico é permitido apenas a membros da secretaria
-@consultas_secretaria_bp.route('/cadastra/medico', methods=['POST'])
+@consultas_secretaria_bp.route('/cadastra/novo_medico', methods=['POST'])
 @jwt_required()
 def cadastrar_medico():
-    data = request.get_json() or {}
     usuario = get_jwt_identity() or {}
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
@@ -26,10 +25,14 @@ def cadastrar_medico():
     if usuario_nivel != 'secretario':
         return jsonify({"erro": "Acesso negado. Apenas secretários podem cadastrar médicos."}), 403
   
-    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'usuario', 'senha', ]
+    data = request.get_json() or {}
+    if not data:
+        return jsonify({"erro": "Nenhum dado fornecido."}), 400
+        
+    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'email', 'senha','nivel_acesso' ]
     if not all(campo in data for campo in campos_obrigatorios):
         return jsonify({
-            "erro": "Campos obrigatórios faltando. Use: nome, especialidade, crm, usuario, senha."
+            "erro": "Campos obrigatórios faltando. Use: nome, especialidade, crm, email, senha."
         }), 400
 
     if Medico.query.filter_by(crm=data['crm']).first():
@@ -39,7 +42,7 @@ def cadastrar_medico():
         nome=data['nome'],
         especialidade=data['especialidade'],
         crm=data['crm'],
-        usuario=data['usuario'],
+        usuario=data['email'],
         senha=data['senha'],
         nivel_acesso='medico'
     )
@@ -48,8 +51,11 @@ def cadastrar_medico():
     db.session.commit()
 
     return jsonify({
-        "mensagem": f"Médico {novo_medico.nome} cadastrado com sucesso.",
-        "id": novo_medico.id
+        "mensagem": "Um novo médico foi cadastrado com sucesso.",
+        "id": novo_medico.id,
+        "nome": novo_medico.nome,
+        "especialidade": novo_medico.especialidade, 
+        "crm": novo_medico.crm
     }), 201
 
 
@@ -65,6 +71,8 @@ def excluir_medico(medico_id):
     if usuario_nivel != 'secretario':
         return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
     medico = Medico.query.get_or_404(medico_id)
+    if not medico:
+        return jsonify({"erro": "Médico não encontrado."}), 404
     db.session.delete(medico)
     db.session.commit()
     return jsonify({"mensagem": f"Médico {medico.nome} excluído com sucesso."}), 200
@@ -83,9 +91,11 @@ def cadastrar_paciente():
     if usuario_nivel != 'secretario':
         return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
     
-    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento','nivel_acesso']):
-        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento,'nivel_acesso)."}), 400
-
+    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento','email','senha','nivel_acesso']):
+        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento, email, senha, nivel_acesso)."}), 400
+    
+    if Paciente.query.filter_by(cpf=data['cpf']).first():
+        return jsonify({"erro": "Já existe um paciente cadastrado com este CPF."}), 400
     try:
         data_nasc = datetime.strptime(data['data_nascimento'], '%Y-%m-%d').date()
     except ValueError:
@@ -95,12 +105,17 @@ def cadastrar_paciente():
         nome=data['nome'],
         cpf=data['cpf'],
         data_nascimento=data_nasc,
+        usuario=data['email'],
+        senha=data['senha'],
         nivel_acesso='paciente'
     )
 
     db.session.add(paciente)
     db.session.commit()
-    return jsonify({"mensagem": f"Paciente {paciente.nome} cadastrado com sucesso.", "id": paciente.id}), 201
+    return jsonify({"mensagem": " um novo Paciente foi cadastrado com sucesso.", 
+                    "id": paciente.id,
+                    "nome":paciente.nome,
+                    }), 201
 
 
 # Excluir paciente
@@ -116,6 +131,8 @@ def excluir_paciente(paciente_id):
         return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
     
     paciente = Paciente.query.get_or_404(paciente_id)
+    if not paciente:
+        return jsonify({"erro": "Paciente não encontrado."}), 404
     db.session.delete(paciente)
     db.session.commit()
     return jsonify({"mensagem": f"Paciente {paciente.nome} excluído com sucesso."}), 200
