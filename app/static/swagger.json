@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "SGHSS - API PARA GESTÃO HOSPITALAR",
-    "description": "API RESTful para gestão de consultas médicas — médicos, pacientes e secretarías.",
+    "title": "VIDAPLUS SGHSS - GESTÃO HOSPITALAR",
+    "description": "API RESTful para gestão de consultas.",
     "version": "1.0.0"
   },
   "host": "127.0.0.1:5000",
@@ -92,7 +92,64 @@
     {
       "BearerAuth": []
     }
-  ],
+    ],
+
+    "/editar_senha": {
+      "put": {
+        "tags": ["Autenticação"],
+        "summary": "Atualizar senha do usuário autenticado",
+        "description": "Permite que médicos, secretários e pacientes autenticados atualizem sua senha. É obrigatório fornecer a senha atual e a nova senha.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "senha_atual": {
+                  "type": "string",
+                  "example": "123456"
+                },
+                "nova_senha": {
+                  "type": "string",
+                  "example": "novasenha"
+                }
+              },
+              "required": ["senha_atual", "nova_senha"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Senha atualizada com sucesso"
+            
+          },
+          "400": {
+            "description": "Erro de validação ou campos faltando"
+            
+          },
+          "401": {
+            "description": "Senha atual incorreta"
+            
+          },
+          "403": {
+            "description": "Token inválido ou usuário não identificado"
+            
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+            
+          },
+          "500": {
+            "description": "Erro interno ao atualizar senha"
+          
+          
+          }
+        }
+      }
+    },
+
   "/consulta/consulta_agenda_medica": {
       "get": {
         "tags": ["Medico"],
@@ -373,11 +430,11 @@
                 "especialidade": { "type": "string" },
                 "crm": { "type": "string" },
                 "email": { "type": "string" },
-                "senha": { "type": "string" },
-                "nivel_acesso": { "type": "string" }
+                "senha": { "type": "string" }
+                
 
               },
-              "required": ["nome", "especialidade", "crm", "usuario", "senha", "nivel_acesso"]
+              "required": ["nome", "especialidade", "crm", "usuario", "senha"]
             }
           }
         ],
@@ -423,10 +480,10 @@
                 "cpf": { "type": "string" },
                 "data_nascimento": { "type": "string", "format": "date" },
                 "email": { "type": "string" },
-                "senha": { "type": "string" },
-                "nivel_acesso": { "type": "string" }
+                "senha": { "type": "string" }
+                
               },
-              "required": ["nome", "cpf", "data_nascimento", "email", "senha", "nivel_acesso"]
+              "required": ["nome", "cpf", "data_nascimento", "email", "senha"]
             }
           }
         ],
@@ -476,7 +533,77 @@
         }
       }
     },
-    "/consulta/consultas_marcadas": {
+
+    "/consulta/{consulta_id}/": {
+    "get": {
+      "tags": [
+        "Secretaria"
+      ],
+      "summary": "Buscar consulta por ID",
+      "description": "Retorna detalhes de uma consulta específica. Apenas usuários com nível de acesso 'secretario' podem acessar esta rota.",
+     
+      "produces": [
+        "application/json"
+      ],
+      "parameters": [
+        {
+          "name": "consulta_id",
+          "in": "path",
+          "required": true,
+          "description": "ID da consulta",
+          "type": "integer",
+          "example": 12
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Consulta encontrada com sucesso",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "consulta": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer", "example": 12 },
+                  "paciente": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer", "example": 5 },
+                      "nome": { "type": "string", "example": "Carlos Oliveira" }
+                    }
+                  },
+                  "medico": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer", "example": 3 },
+                      "nome": { "type": "string", "example": "Dra. Ana Bezerra" },
+                      "especialidade": { "type": "string", "example": "Cardiologia" }
+                    }
+                  },
+                  "data": { "type": "string", "example": "2025-02-15" },
+                  "hora": { "type": "string", "example": "14:30:00" },
+                  "status": { "type": "string", "example": "agendada" },
+                  "observacoes": { "type": "string", "example": "Paciente relatou dores no peito." }
+                }
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Usuário sem permissão"
+         
+        },
+        "404": {
+          "description": "Consulta não encontrada"
+          
+         
+        }
+      }
+    }
+  },
+
+
+    "/consulta/consultas_geral_marcadas": {
       "get": {
         "tags": ["Secretaria"],
         "summary": "Listar todas as consultas agendadas",
@@ -496,3 +623,10 @@
     }
   }
 }
+
+
+
+
+
+
+

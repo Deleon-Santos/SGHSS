@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from app.models import consulta
 from app.models.consulta import Consulta
 from app.extensions import db
 from app.models.medico import Medico
@@ -29,7 +30,7 @@ def cadastrar_medico():
     if not data:
         return jsonify({"erro": "Nenhum dado fornecido."}), 400
         
-    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'email', 'senha','nivel_acesso' ]
+    campos_obrigatorios = ['nome', 'especialidade', 'crm', 'email', 'senha' ]
     if not all(campo in data for campo in campos_obrigatorios):
         return jsonify({
             "erro": "Campos obrigatórios faltando. Use: nome, especialidade, crm, email, senha."
@@ -91,8 +92,8 @@ def cadastrar_paciente():
     if usuario_nivel != 'secretario':
         return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
     
-    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento','email','senha','nivel_acesso']):
-        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento, email, senha, nivel_acesso)."}), 400
+    if not all(k in data for k in ['nome', 'cpf', 'data_nascimento','email','senha']):
+        return jsonify({"erro": "Campos obrigatórios faltando (nome, cpf, data_nascimento, email, senha)."}), 400
     
     if Paciente.query.filter_by(cpf=data['cpf']).first():
         return jsonify({"erro": "Já existe um paciente cadastrado com este CPF."}), 400
@@ -139,7 +140,7 @@ def excluir_paciente(paciente_id):
 
 
 # Ver todas as consultas agendadas
-@consultas_secretaria_bp.route('/consulta/consultas_marcadas', methods=['GET'])
+@consultas_secretaria_bp.route('/consulta/consultas_geral_marcadas', methods=['GET'])
 @jwt_required()
 def ver_consultas_agendadas():
     usuario = get_jwt_identity() or {}
@@ -231,3 +232,32 @@ def listar_usuarios():
     if not resultado:
         return jsonify({"mensagem": "Nenhum usuário encontrado para o tipo especificado."}), 404
     return jsonify({"menssagem":resultado}), 200
+
+# Obter detalhes de uma consulta por ID
+@consultas_secretaria_bp.route('/consulta/<int:consulta_id>/', methods=['GET'])
+@jwt_required() 
+def consulta_por_id(consulta_id):
+    usuario = get_jwt_identity() or {}
+    if not usuario:
+        return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+    
+    
+    usuario_nivel = usuario.get('nivel_acesso')
+    if usuario_nivel != 'secretario':
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
+    
+    consulta = Consulta.query.get_or_404(consulta_id)
+    if not consulta:
+        return jsonify({"erro": "Consulta não encontrada."}), 404
+    
+    task_list = {
+        "consulta_id": consulta.id,
+        "paciente": consulta.paciente.nome if consulta.paciente else None,
+        "medico": consulta.medico.nome if consulta.medico else None,
+        "data": str(consulta.data),
+        "hora": str(consulta.hora),
+        "status": consulta.status
+    }
+    return jsonify({"Consulta":task_list}), 200  
+   
+    
