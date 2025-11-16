@@ -44,7 +44,7 @@
               "properties": {
                 "email": {
                   "type": "string",
-                  "example": "Deleon@Santos"
+                  "example": "deleon@santos"
                 },
                 "senha": {
                   "type": "string",
@@ -494,8 +494,8 @@
       }
     },
 
-    "/deleta/paciente/{paciente_id}": {
-      "delete": {
+    "/bloqueia/paciente/{paciente_id}": {
+      "post": {
         "tags": ["Secretaria"],
         "summary": "Excluir paciente pelo ID",
         "parameters": [

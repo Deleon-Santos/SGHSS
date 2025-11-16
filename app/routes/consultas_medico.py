@@ -17,6 +17,7 @@ def swagger_redirect():
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/atendimento', methods=['POST'])
 @jwt_required() 
 def finaliza_consulta(consulta_id):
+    #valida o token, o nivel de acesso, a consulta, o status do paciente, status da consulta
     usuario = get_jwt_identity() or {}
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
@@ -24,17 +25,19 @@ def finaliza_consulta(consulta_id):
     medico_id = usuario['id']
     usuario_nivel = usuario.get('nivel_acesso')
     if usuario_nivel != 'medico':
-        return jsonify({"erro": "Acesso negado. Rota destinada a medicos."}), 403
+        return jsonify({"erro": "Acesso negado. Rota destinada a médicos."}), 403
     
     consulta = Consulta.query.get_or_404(consulta_id)
     if not consulta:
         return jsonify({"erro": "Consulta não encontrada."}), 404
     
+    if not consulta.paciente.ativo:
+        return jsonify({"erro": "Paciente inativo. Contate a secretaría."}), 403
+    
     data = request.get_json() or {}
     if 'diagnostico' not in data:
         return jsonify({"erro": "Diagnóstico é obrigatório para finalizar a consulta."}), 400
     
-    # Verifica se o médico autenticado é o mesmo que está tentando finalizar
     if consulta.medico_id != medico_id:
         return jsonify({"erro": "Ação não autorizada. Esta consulta está registrada para outro médico."}), 403
     
@@ -64,6 +67,9 @@ def prescreve_medicamento(consulta_id):
     consulta = Consulta.query.get_or_404(consulta_id)
     if not consulta:
         return jsonify({"erro": "Consulta não encontrada."}), 404
+    
+    if not consulta.paciente.ativo:
+        return jsonify({"erro": "Paciente inativo. Contate a secretaría."}), 403
     
     data = request.get_json()    
     if not all(k in data for k in ['medicacao', 'dosagem', 'orientacoes']):
@@ -106,6 +112,9 @@ def solicita_exame(consulta_id):
     consulta = Consulta.query.get_or_404(consulta_id)
     if not consulta:
         return jsonify({"erro": "Consulta não encontrada."}), 404
+    
+    if not consulta.paciente.ativo:
+        return jsonify({"erro": "Paciente inativo. Contate a secretaría."}), 403
     
     data = request.get_json() or {}
 

@@ -10,7 +10,7 @@ class Paciente(db.Model):
     usuario = db.Column(db.String(80), unique=True, nullable=False)
     senha = db.Column(db.String(20), nullable=False)
     nivel_acesso = db.Column(db.String(20), nullable=False, default='paciente')
-
+    ativo = db.Column(db.Boolean, default=True)
     consultas = db.relationship('Consulta', back_populates='paciente')
 
 

@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import timedelta
+from werkzeug.security import check_password_hash , generate_password_hash
+
 from app.models.medico import Medico
 from app.models.secretario import Secretario
 from app.models.paciente import Paciente
@@ -15,35 +17,39 @@ def login():
     if not data:
         return jsonify({'erro': 'Requisição sem corpo JSON.'}), 400
 
-    # Pega os campos com segurança (aceita minúsculas ou maiúsculas)
+    # Aceita diferentes nomes de campo para login e senha
     nome = data.get('email') or data.get('nome') or data.get('usuario')
     senha = data.get('Senha') or data.get('senha')
 
-    # Validação
     if not nome or not senha:
-        return jsonify({'erro': 'Campos NomeSobrenome e Senha são obrigatórios.'}), 400
+        return jsonify({'erro': 'Campos de login e senha são obrigatórios.'}), 400
 
-
-    # Verifica se o usuário existe em qualquer tabela
+    # Busca o usuário apenas pelo campo 'usuario'
     user = (
-        Medico.query.filter_by(usuario=nome, senha=senha).first() or
-        Secretario.query.filter_by(usuario=nome, senha=senha).first() or
-        Paciente.query.filter_by(usuario=nome, senha=senha).first()
+        Medico.query.filter_by(usuario=nome).first() or
+        Secretario.query.filter_by(usuario=nome).first() or
+        Paciente.query.filter_by(usuario=nome).first()
     )
 
+    # Se nenhum usuário encontrado
     if not user:
-        return jsonify({'erro': 'Credenciais inválidas.'}), 401
+        return jsonify({'erro': 'Usuário não encontrado, contate a secretaria.'}), 404
+    if isinstance(user, Paciente) and not user.ativo:
+        return jsonify({'erro': 'Usuário inativo. Contate a secretaria.'}), 403
+    
+    if not check_password_hash(user.senha, senha):
+        return jsonify({'erro': 'Senha incorreta.'}), 401
 
-    # Payload do token
+    # Dados que serão colocados no token JWT
     identity_data = {
         "id": user.id,
-        "nome": nome,
-        "nivel_acesso": user.nivel_acesso,  
+        "nome": user.nome,
+        "nivel_acesso": user.nivel_acesso,
         "tipo": user.__class__.__name__
     }
 
-    # Gera o token JWT válido por 60 minutos
-    access_token = 'Bearer '+ create_access_token(
+    
+    access_token = "Bearer " + create_access_token(
         identity=identity_data,
         expires_delta=timedelta(minutes=60)
     )
@@ -54,26 +60,34 @@ def login():
         "expira_em": "60 minutos"
     }), 200
 
+
+
 # Rota para editar a senha do usuário logado
-@login_bp.route('/editar_senha', methods=['PUT'])   
-@jwt_required() 
+@login_bp.route('/editar_senha', methods=['PUT'])
+@jwt_required()
 def editar_senha():
     usuario = get_jwt_identity() or {}
+    
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
+
     usuario_id = usuario.get('id')
     usuario_nivel = usuario.get('nivel_acesso')
-    
+
     data = request.get_json() or {}
-    
+
+    # Verificação dos campos obrigatórios
     if 'senha_atual' not in data or 'nova_senha' not in data:
-        return jsonify({"erro": "Campos obrigatórios faltando. Use: senha_atual, nova_senha."}), 400    
-    
-    nova_senha = data['nova_senha'] 
+        return jsonify({"erro": "Campos obrigatórios faltando. Use: senha_atual, nova_senha."}), 400
+
+    senha_atual = data['senha_atual']
+    nova_senha = data['nova_senha']
+
+    # Mapear o tipo de usuário ao modelo
     modelos = {
-    "medico": Medico,
-    "secretario": Secretario,
-    "paciente": Paciente
+        "medico": Medico,
+        "secretario": Secretario,
+        "paciente": Paciente
     }
 
     Modelo = modelos.get(usuario_nivel)
@@ -86,21 +100,20 @@ def editar_senha():
     if not usuario_obj:
         return jsonify({"erro": "Usuário não encontrado."}), 404
 
-    if usuario_obj.senha != data['senha_atual'] :
-        return jsonify({"erro": "Senha atual incorreta."}), 400 
-    
-    if usuario_obj.senha == nova_senha:
-        return jsonify({"erro": "A nova senha deve ser diferente da senha atual."}), 400  
-      
-    usuario_obj.senha = nova_senha
-    
+    # Conferir a senha atual usando HASH
+    if not check_password_hash(usuario_obj.senha, senha_atual):
+        return jsonify({"erro": "Senha atual incorreta."}), 400
+
+    # Impedir que a nova senha seja igual à atual
+    if check_password_hash(usuario_obj.senha, nova_senha):
+        return jsonify({"erro": "A nova senha deve ser diferente da senha atual."}), 400
+
+    # Gerar HASH da nova senha
+    usuario_obj.senha = generate_password_hash(nova_senha)
+
     try:
         db.session.commit()
         return jsonify({"mensagem": "Senha atualizada com sucesso!"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"erro": f"Erro ao atualizar senha: {str(e)}"}), 500
-
-    
-                    
-        

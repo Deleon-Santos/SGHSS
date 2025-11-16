@@ -7,6 +7,7 @@ from app.extensions import db
 from app.models.medico import Medico
 from app.models.paciente import Paciente
 from app.models.secretario import Secretario
+from werkzeug.security import generate_password_hash
 
 consultas_secretaria_bp = Blueprint('consultas_secretaria', __name__)
 
@@ -44,7 +45,7 @@ def cadastrar_medico():
         especialidade=data['especialidade'],
         crm=data['crm'],
         usuario=data['email'],
-        senha=data['senha'],
+        senha=generate_password_hash(data['senha']),
         nivel_acesso='medico'
     )
 
@@ -70,14 +71,35 @@ def excluir_medico(medico_id):
 
     usuario_nivel = usuario.get('nivel_acesso')
     if usuario_nivel != 'secretario':
-        return jsonify({"erro": "Acesso negado. Rota destinada a secretarios."}), 403
+        return jsonify({"erro": "Acesso negado. Rota destinada a secretários."}), 403
+
     medico = Medico.query.get_or_404(medico_id)
     if not medico:
         return jsonify({"erro": "Médico não encontrado."}), 404
+    if medico.especialidade == 'Plantonista':
+        return jsonify({
+            "erro": "Não é permitido excluir o médico plantonista."
+        }), 400
+    plantonista = Medico.query.filter_by(especialidade='Plantonista').first()
+
+    if not plantonista:
+        return jsonify({
+            "erro": "Nenhum médico plantonista encontrado. Não é possível transferir as consultas."
+        }), 400
+    consultas = Consulta.query.filter_by(medico_id=medico_id).all()
+    for consulta in consultas:
+        consulta.medico_id = plantonista.id
+
+    db.session.commit()  
+
     db.session.delete(medico)
     db.session.commit()
-    return jsonify({"mensagem": f"Médico {medico.nome} excluído com sucesso."}), 200
 
+    return jsonify({
+        "mensagem": f"Médico {medico.nome} excluído com sucesso.",
+        "consultas_transferidas": len(consultas),
+        "transferido_para": plantonista.nome
+    }), 200
 
 # Cadastrar paciente
 @consultas_secretaria_bp.route('/cadastra/paciente', methods=['POST'])
@@ -107,7 +129,7 @@ def cadastrar_paciente():
         cpf=data['cpf'],
         data_nascimento=data_nasc,
         usuario=data['email'],
-        senha=data['senha'],
+        senha=generate_password_hash(data['senha']),
         nivel_acesso='paciente'
     )
 
@@ -120,7 +142,7 @@ def cadastrar_paciente():
 
 
 # Excluir paciente
-@consultas_secretaria_bp.route('/deleta/paciente/<int:paciente_id>', methods=['DELETE'])
+@consultas_secretaria_bp.route('/deleta/paciente/<int:paciente_id>', methods=['POST'])
 @jwt_required()
 def excluir_paciente(paciente_id):
     usuario = get_jwt_identity() or {}
@@ -134,10 +156,19 @@ def excluir_paciente(paciente_id):
     paciente = Paciente.query.get_or_404(paciente_id)
     if not paciente:
         return jsonify({"erro": "Paciente não encontrado."}), 404
-    db.session.delete(paciente)
-    db.session.commit()
-    return jsonify({"mensagem": f"Paciente {paciente.nome} excluído com sucesso."}), 200
+    if not paciente.ativo:
+        return jsonify({"erro": "Paciente já está inativo."}), 400
+    paciente.ativo = False  
 
+    try:
+        db.session.commit()
+        return jsonify({
+            "mensagem": f"Paciente {paciente.nome} foi descredenciado e não aparecerá mais para médicos.",
+            "status": "inativo"
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erro": f"Erro ao descredenciar paciente: {str(e)}"}), 500
 
 # Ver todas as consultas agendadas
 @consultas_secretaria_bp.route('/consulta/consultas_geral_marcadas', methods=['GET'])
