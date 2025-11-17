@@ -142,7 +142,7 @@ def cadastrar_paciente():
 
 
 # Excluir paciente
-@consultas_secretaria_bp.route('/deleta/paciente/<int:paciente_id>', methods=['POST'])
+@consultas_secretaria_bp.route('/bloqueia/paciente/<int:paciente_id>', methods=['POST'])
 @jwt_required()
 def excluir_paciente(paciente_id):
     usuario = get_jwt_identity() or {}
@@ -163,7 +163,7 @@ def excluir_paciente(paciente_id):
     try:
         db.session.commit()
         return jsonify({
-            "mensagem": f"Paciente {paciente.nome} foi descredenciado e não aparecerá mais para médicos.",
+            "mensagem": f"Paciente {paciente.nome} foi descredenciado e não tera acesso ao sistema.",
             "status": "inativo"
         }), 200
     except Exception as e:
@@ -194,6 +194,7 @@ def ver_consultas_agendadas():
         {
             "id": c.id,
             "paciente": c.paciente.nome if c.paciente else None,
+            "paciente_status": "ativo" if c.paciente and c.paciente.ativo else "inativo",
             "medico": c.medico.nome if c.medico else None,
             "data": str(c.data),
             "hora": str(c.hora),
@@ -228,7 +229,8 @@ def listar_usuarios():
                 "nome": p.nome,
                 "cpf": p.cpf,
                 "usuario": getattr(p, "usuario", None),
-                "tipo": "paciente"
+                "tipo": "paciente",
+                "status" : "ativo" if p.ativo else "inativo"
             }
             for p in pacientes
         ])

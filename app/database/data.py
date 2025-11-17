@@ -17,14 +17,14 @@ def seed_db(app):
         # Criação do secretário
             sec1 = Secretario(nome='Deleon Santos', matricula='4556949', usuario= 'deleon@santos', senha=generate_password_hash('4556949'), nivel_acesso='secretario')
             
-            db.session.add(sec1,plant)
+            db.session.add(sec1)
             
             # Criação dos médicos
             plant = Medico(nome='Plantonista', crm='CRM000', especialidade='Plantonista', usuario='plantonista@plantonista', senha=generate_password_hash('crm000'), nivel_acesso='medico')
             med1 = Medico(nome='Dr. João Alcantara', crm='CRM123', especialidade='Clinico_geral', usuario='joao@alcantara', senha=generate_password_hash('crm123'), nivel_acesso='medico')
             med2 = Medico(nome='Dr. Maria Magalhaes', crm='CRM456', especialidade='Pediatria', usuario='maria@magalhaes', senha=generate_password_hash('crm456'), nivel_acesso='medico')
             med3 = Medico(nome='Dr. Pedro Cardoso', crm='CRM789', especialidade='Obstetricia', usuario='pedro@cardoso', senha=generate_password_hash('crm789'), nivel_acesso='medico')
-            db.session.add_all([med1, med2, med3])
+            db.session.add_all([med1, med2, med3, plant])
 
             # Criação dos pacientes
             pac1 = Paciente(nome='Alice Souza', data_nascimento=date(2000, 12, 12), cpf='12345678901', usuario='alice@souza', senha=generate_password_hash('12345678901'), nivel_acesso='paciente')
