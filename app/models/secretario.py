@@ -10,5 +10,9 @@ class Secretario(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     nivel_acesso = db.Column(db.String(20), nullable=False, default='secretario')
 
+    filial_id = db.Column(db.Integer, db.ForeignKey('filiais.id'), nullable=False)
+    
+    filial = db.relationship('Filial', back_populates='secretarios')
+
     def __repr__(self):
         return f'<Secretario {self.nome}>'

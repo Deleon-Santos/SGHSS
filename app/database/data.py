@@ -1,5 +1,6 @@
 from datetime import datetime, date, time
 from app.models.consulta import Consulta
+from app.models.filial import Filial
 from app.models.paciente import Paciente
 from app.models.secretario import Secretario
 from ..extensions import db
@@ -14,9 +15,12 @@ def seed_db(app):
         if Medico.query.first():
             return
         try:
+        # Criação da filial
+            filial1 = Filial(nome='Filial Central', endereco='Rua Principal, 123', telefone='1234-5678')
+            db.session.add(filial1)
+
         # Criação do secretário
-            sec1 = Secretario(nome='Deleon Santos', matricula='4556949', usuario= 'deleon@santos', senha=generate_password_hash('4556949'), nivel_acesso='secretario')
-            
+            sec1 = Secretario(nome='Deleon Santos', matricula='4556949', usuario= 'deleon@santos', senha=generate_password_hash('4556949'), nivel_acesso='secretario',filial_id=1)
             db.session.add(sec1)
             
             # Criação dos médicos
