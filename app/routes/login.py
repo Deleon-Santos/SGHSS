@@ -18,13 +18,13 @@ def login():
         return jsonify({'erro': 'Requisição sem corpo JSON.'}), 400
 
     # Aceita diferentes nomes de campo para login e senha
-    nome = data.get('email') or data.get('nome') or data.get('usuario')
-    senha = data.get('Senha') or data.get('senha')
+    nome = data.get('email') 
+    senha = data.get('senha') 
 
     if not nome or not senha:
         return jsonify({'erro': 'Campos de login e senha são obrigatórios.'}), 400
 
-    # Busca o usuário apenas pelo campo 'usuario'
+    # Busca o usuário pelo campo 'usuario'
     user = (
         Medico.query.filter_by(usuario=nome).first() or
         Secretario.query.filter_by(usuario=nome).first() or
@@ -40,7 +40,6 @@ def login():
     if not check_password_hash(user.senha, senha):
         return jsonify({'erro': 'Senha incorreta.'}), 401
 
-    # Dados que serão colocados no token JWT
     identity_data = {
         "id": user.id,
         "nome": user.nome,
@@ -76,14 +75,12 @@ def editar_senha():
 
     data = request.get_json() or {}
 
-    # Verificação dos campos obrigatórios
     if 'senha_atual' not in data or 'nova_senha' not in data:
         return jsonify({"erro": "Campos obrigatórios faltando. Use: senha_atual, nova_senha."}), 400
 
     senha_atual = data['senha_atual']
     nova_senha = data['nova_senha']
 
-    # Mapear o tipo de usuário ao modelo
     modelos = {
         "medico": Medico,
         "secretario": Secretario,
@@ -108,9 +105,7 @@ def editar_senha():
     if check_password_hash(usuario_obj.senha, nova_senha):
         return jsonify({"erro": "A nova senha deve ser diferente da senha atual."}), 400
 
-    # Gerar HASH da nova senha
     usuario_obj.senha = generate_password_hash(nova_senha)
-
     try:
         db.session.commit()
         return jsonify({"mensagem": "Senha atualizada com sucesso!"}), 200

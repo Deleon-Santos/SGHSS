@@ -160,7 +160,9 @@
         ],
         "responses": {
           "200": { "description": "Lista de consultas encontradas" },
-          "400": { "description": "Formato de data inválido" }
+          "400": { "description": "Formato de data inválido" },
+          "404": { "description": "Esta rota esta disponivel apenas para medicos" }
+
         }
       }
     },
@@ -276,6 +278,7 @@
       "post": {
         "tags": ["Medico"],
         "summary": "Cancelar uma consulta",
+        "description": "Permite que o médico cancele uma consulta agendada.",
         "parameters": [
           {
             "name": "consulta_id",
@@ -328,6 +331,7 @@
       "get": {
         "tags": ["Paciente"],
         "summary": "Ver todas as consultas agendadas de um paciente",
+        "description": "Retorna todas as consultas agendadas para o paciente autenticado.",
         "parameters": [
           
         ],
@@ -342,6 +346,7 @@
       "get": {
         "tags": ["Paciente"],
         "summary": "Listar agenda de um médico por especialidade",
+        "description": "Retorna os horários disponíveis de um médico específico, com opção de filtrar por data.",
         "parameters": [
           {
             "name": "medico_id",
@@ -369,6 +374,7 @@
       "post": {
         "tags": ["Paciente"],
         "summary": "Agendar uma nova consulta",
+        "description": "Permite que o paciente agende uma nova consulta com um médico específico em uma data e hora escolhidas.",
         "parameters": [
           {
             "in": "body",
@@ -397,6 +403,7 @@
       "post": {
         "tags": ["Paciente"],
         "summary": "Cancelar uma consulta",
+        "description": "Permite que o paciente cancele uma consulta agendada.",
         "parameters": [
           {
             "name": "consulta_id",
@@ -418,6 +425,7 @@
       "post": {
         "tags": ["Secretaria"],
         "summary": "Cadastrar novo médico",
+        "description": "Cadastrar um novo médico no sistema.",
         "parameters": [
           {
             "in": "body",
@@ -449,6 +457,7 @@
       "delete": {
         "tags": ["Secretaria"],
         "summary": "Excluir médico pelo ID",
+        "description": "Remove um médico do sistema com base no ID fornecido.",
         "parameters": [
           {
             "name": "medico_id",
@@ -468,6 +477,7 @@
       "post": {
         "tags": ["Secretaria"],
         "summary": "Cadastrar novo paciente",
+        "description": "Cadastrar um novo paciente no sistema.",
         "parameters": [
           {
             "in": "body",
@@ -498,6 +508,7 @@
       "post": {
         "tags": ["Secretaria"],
         "summary": "Excluir paciente pelo ID",
+        "description": "Marca o paciente como inativo no sistema, impedindo novos agendamentos em caso de inadimplência.",
         "parameters": [
           {
             "name": "paciente_id",
