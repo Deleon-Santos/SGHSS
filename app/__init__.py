@@ -47,3 +47,4 @@ def create_app():
         seed_db(app)
 
     return app
+    

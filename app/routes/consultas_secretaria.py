@@ -102,7 +102,7 @@ def excluir_medico(medico_id):
     }), 200
 
 # Cadastrar paciente
-@consultas_secretaria_bp.route('/cadastra/paciente', methods=['POST'])
+@consultas_secretaria_bp.route('/cadastra/novo_paciente', methods=['POST'])
 @jwt_required()
 def cadastrar_paciente():
     data = request.get_json() or {}
