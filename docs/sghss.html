@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGHSS – Documentação</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #222;
+            line-height: 1.6;
+        }
+        header {
+            background: #0d6efd;
+            color: #fff;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.6rem;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+        }
+        h2 {
+            color: #0d6efd;
+            border-left: 5px solid #0d6efd;
+            padding-left: 10px;
+        }
+        pre, code {
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+        table th {
+            background: #e9ecef;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: #f1f1f1;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📘 SGHSS – Sistema de Gerenciamento Hospitalar de Saúde e Serviços</h1>
+    </header>
+
+    <div class="container">
+        <h2>📖 Introdução</h2>
+        <p>O SGHSS é uma API backend desenvolvida para gerenciar consultas médicas, usuários e processos administrativos essenciais em uma unidade de saúde. O projeto utiliza Flask, JWT, SQLAlchemy e segue boas práticas REST.</p>
+
+        <h2>🚀 Funcionalidades</h2>
+
+        <h3>👨‍⚕️ Médico</h3>
+        <ul>
+            <li>Consultar agenda de atendimentos</li>
+            <li>Finalizar atendimento</li>
+            <li>Registrar diagnóstico</li>
+            <li>Prescrever medicamentos</li>
+            <li>Solicitar exames</li>
+            <li>Cancelar consulta</li>
+        </ul>
+
+        <h3>👤 Paciente</h3>
+        <ul>
+            <li>Listar médicos credenciados</li>
+            <li>Ver consultas agendadas</li>
+            <li>Agendar consulta</li>
+            <li>Cancelar consulta</li>
+        </ul>
+
+        <h3>🏢 Secretaria</h3>
+        <ul>
+            <li>Cadastrar pacientes</li>
+            <li>Cadastrar médicos</li>
+            <li>Listar usuários</li>
+            <li>Buscar consulta por ID</li>
+            <li>Bloquear pacientes</li>
+            <li>Excluir médicos</li>
+        </ul>
+
+        <h3>🔐 Autenticação</h3>
+        <ul>
+            <li>Login JWT (expira em 60 minutos)</li>
+            <li>Alteração de senha</li>
+        </ul>
+
+        <h2>🛠 Tecnologias Utilizadas</h2>
+        <ul>
+            <li>Python 3.12</li>
+            <li>Flask</li>
+            <li>Flask-JWT-Extended</li>
+            <li>Flask-SQLAlchemy</li>
+            <li>Flask-CORS</li>
+            <li>Werkzeug Security</li>
+            <li>Swagger UI</li>
+        </ul>
+
+        <h2>📁 Estrutura do Projeto</h2>
+        <pre>
+SGHSS/
+├── app/
+│   ├── models/
+│   ├── routes/
+│   ├── extensions.py
+│   └── __init__.py
+├── requirements.txt
+├── run.py
+├── swagger.json
+└── README.md
+        </pre>
+
+        <h2>📌 Endpoints da API</h2>
+
+        <h3>🔐 Autenticação</h3>
+        <table>
+            <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+            <tr><td>POST</td><td>/login</td><td>Gera token JWT</td></tr>
+            <tr><td>PUT</td><td>/editar_senha</td><td>Atualiza senha</td></tr>
+        </table>
+
+        <h3>👨‍⚕️ Médico</h3>
+        <table>
+            <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+            <tr><td>GET</td><td>/consulta/consulta_agenda_medica</td><td>Agenda do médico</td></tr>
+            <tr><td>POST</td><td>/consulta/{id}/atendimento</td><td>Finalizar consulta</td></tr>
+            <tr><td>POST</td><td>/consulta/{id}/prescreve_tratamento</td><td>Prescrever tratamento</td></tr>
+            <tr><td>POST</td><td>/consulta/{id}/solicita_exame</td><td>Solicitar exames</td></tr>
+            <tr><td>PUT</td><td>/consulta/{id}/cancelamento_consulta</td><td>Cancelar consulta</td></tr>
+        </table>
+
+        <h3>👤 Paciente</h3>
+        <table>
+            <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+            <tr><td>GET</td><td>/consulta/lista_medico_credenciado</td><td>Listar médicos credenciados</td></tr>
+            <tr><td>GET</td><td>/consulta/agendamento_paciente</td><td>Ver consultas</td></tr>
+            <tr><td>GET</td><td>/consulta/agenda_medica/{medico_id}</td><td>Agenda de médico</td></tr>
+            <tr><td>POST</td><td>/consulta/novo_agendamento</td><td>Agendar consulta</td></tr>
+            <tr><td>PUT</td><td>/consulta/{id}/paciente_cancelamento</td><td>Cancelar consulta</td></tr>
+        </table>
+
+        <h3>🏢 Secretaria</h3>
+        <table>
+            <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+            <tr><td>POST</td><td>/consulta/cadastro_paciente</td><td>Cadastrar paciente</td></tr>
+            <tr><td>POST</td><td>/consulta/cadastro_medico</td><td>Cadastrar médico</td></tr>
+            <tr><td>GET</td><td>/consulta/lista_usuario_geral</td><td>Listar usuários</td></tr>
+            <tr><td>GET</td><td>/consulta/{id}</td><td>Buscar consulta</td></tr>
+            <tr><td>PUT</td><td>/consulta/bloqueio/{paciente_id}</td><td>Bloquear paciente</td></tr>
+            <tr><td>DELETE</td><td>/deleta/medico/{medico_id}</td><td>Excluir médico</td></tr>
+        </table>
+
+        <h2>⚙️ Como Executar</h2>
+        <pre>
+python -m venv venv
+venv/Script/activate
+pip install -r requirements.txt
+python run.py
+        </pre>
+
+        <h2>📦 Requirements.txt</h2>
+        <pre>
+blinker==1.9.0
+click==8.1.7
+colorama==0.4.6
+Flask==3.0.3
+flask-cors==6.0.1
+Flask-JWT-Extended==4.6.0
+Flask-SQLAlchemy==3.1.1
+flask-swagger-ui==4.11.1
+greenlet==3.2.4
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+PyMySQL==1.1.1
+python-dotenv==1.0.1
+SQLAlchemy==2.0.30
+Werkzeug==3.0.3
+        </pre>
+
+        <h2>🧪 Testando no Postman</h2>
+        <pre>
+POST /login
+{
+  "usuario": "exemplo",
+  "senha": "123456"
+}
+        </pre>
+
+        <h2>📝 Conclusão</h2>
+        <p>O SGHSS é uma solução modular, segura e escalável para gestão hospitalar, projetada com Flask, JWT e boas práticas REST.</p>
+    </div>
+
+    <div class="footer">© 2025 SGHSS - Desenvolvido por Deleon Santos</div>
+</body>
+</html>
