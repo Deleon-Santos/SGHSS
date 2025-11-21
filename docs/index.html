@@ -143,32 +143,32 @@ SGHSS/
         <h3>👨‍⚕️ Médico</h3>
         <table>
             <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
-            <tr><td>GET</td><td>/consulta/consulta_agenda_medica</td><td>Agenda do médico</td></tr>
-            <tr><td>POST</td><td>/consulta/{id}/atendimento</td><td>Finalizar consulta</td></tr>
-            <tr><td>POST</td><td>/consulta/{id}/prescreve_tratamento</td><td>Prescrever tratamento</td></tr>
-            <tr><td>POST</td><td>/consulta/{id}/solicita_exame</td><td>Solicitar exames</td></tr>
-            <tr><td>PUT</td><td>/consulta/{id}/cancelamento_consulta</td><td>Cancelar consulta</td></tr>
+            <tr><td>GET</td><td>/api/consulta/consulta_agenda_medica</td><td>Agenda do médico</td></tr>
+            <tr><td>POST</td><td>/api/consulta/{id}/atendimento</td><td>Finalizar consulta</td></tr>
+            <tr><td>POST</td><td>/api/consulta/{id}/prescreve_tratamento</td><td>Prescrever tratamento</td></tr>
+            <tr><td>POST</td><td>/api/consulta/{id}/solicita_exame</td><td>Solicitar exames</td></tr>
+            <tr><td>PUT</td><td>/api/consulta/{id}/cancelamento_consulta</td><td>Cancelar consulta</td></tr>
         </table>
 
         <h3>👤 Paciente</h3>
         <table>
             <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
-            <tr><td>GET</td><td>/consulta/lista_medico_credenciado</td><td>Listar médicos credenciados</td></tr>
-            <tr><td>GET</td><td>/consulta/agendamento_paciente</td><td>Ver consultas</td></tr>
-            <tr><td>GET</td><td>/consulta/agenda_medica/{medico_id}</td><td>Agenda de médico</td></tr>
-            <tr><td>POST</td><td>/consulta/novo_agendamento</td><td>Agendar consulta</td></tr>
-            <tr><td>PUT</td><td>/consulta/{id}/paciente_cancelamento</td><td>Cancelar consulta</td></tr>
+            <tr><td>GET</td><td>/api/consulta/lista_medico_credenciado</td><td>Listar médicos credenciados</td></tr>
+            <tr><td>GET</td><td>/api/consulta/agendamento_paciente</td><td>Ver consultas</td></tr>
+            <tr><td>GET</td><td>/api/consulta/agenda_medica/{medico_id}</td><td>Agenda de médico</td></tr>
+            <tr><td>POST</td><td>/api/consulta/novo_agendamento</td><td>Agendar consulta</td></tr>
+            <tr><td>PUT</td><td>/api/consulta/{id}/paciente_cancelamento</td><td>Cancelar consulta</td></tr>
         </table>
 
         <h3>🏢 Secretaria</h3>
         <table>
             <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
-            <tr><td>POST</td><td>/consulta/cadastro_paciente</td><td>Cadastrar paciente</td></tr>
-            <tr><td>POST</td><td>/consulta/cadastro_medico</td><td>Cadastrar médico</td></tr>
-            <tr><td>GET</td><td>/consulta/lista_usuario_geral</td><td>Listar usuários</td></tr>
-            <tr><td>GET</td><td>/consulta/{id}</td><td>Buscar consulta</td></tr>
-            <tr><td>PUT</td><td>/consulta/bloqueio/{paciente_id}</td><td>Bloquear paciente</td></tr>
-            <tr><td>DELETE</td><td>/deleta/medico/{medico_id}</td><td>Excluir médico</td></tr>
+            <tr><td>POST</td><td>/api/consulta/cadastro_paciente</td><td>Cadastrar paciente</td></tr>
+            <tr><td>POST</td><td>/api/consulta/cadastro_medico</td><td>Cadastrar médico</td></tr>
+            <tr><td>GET</td><td>/api/consulta/lista_usuario_geral</td><td>Listar usuários</td></tr>
+            <tr><td>GET</td><td>/api/consulta/{id}</td><td>Buscar consulta</td></tr>
+            <tr><td>PUT</td><td>/api/consulta/bloqueio/{paciente_id}</td><td>Bloquear paciente</td></tr>
+            <tr><td>DELETE</td><td>/api/deleta/medico/{medico_id}</td><td>Excluir médico</td></tr>
         </table>
 
         <h2>⚙️ Como Executar</h2>
