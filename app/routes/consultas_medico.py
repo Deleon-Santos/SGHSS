@@ -48,7 +48,12 @@ def finaliza_consulta(consulta_id):
     consulta.medico_id = medico_id  
 
     db.session.commit()
-    return jsonify({"mensagem": f"Consulta {consulta_id} finalizada e diagnóstico registrado: {consulta.diagnostico}."}), 200
+    return jsonify({"mensagem": "Consulta finalizada e diagnóstico registrado", 
+                                "informações" :{"Consulta_ID": consulta.id,
+                                                "Medico": consulta.medico.nome, 
+                                                "Paciente": consulta.paciente.nome, 
+                                                "Data": str(consulta.data),
+                                                "Diagnostico"  : consulta.diagnostico}}), 200
 
 
 #o medico de ve prescrever uma medicação ou tratamento para uma consulta

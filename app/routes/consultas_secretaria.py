@@ -1,7 +1,6 @@
-from datetime import date, datetime
+from datetime import datetime
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.models import consulta
 from app.models.consulta import Consulta
 from app.extensions import db
 from app.models.medico import Medico
@@ -267,7 +266,7 @@ def listar_usuarios():
     return jsonify({"menssagem":resultado}), 200
 
 # Obter detalhes de uma consulta por ID
-@consultas_secretaria_bp.route('/consulta/<int:consulta_id>/', methods=['GET'])
+@consultas_secretaria_bp.route('/consulta/<int:consulta_id>', methods=['GET'])
 @jwt_required() 
 def consulta_por_id(consulta_id):
     usuario = get_jwt_identity() or {}

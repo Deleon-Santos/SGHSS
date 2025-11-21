@@ -22,7 +22,7 @@ def agendamento():
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     
-    paciente_id = usuario['paciente_id']
+    paciente_id = usuario['id']
     usuario_nivel = usuario.get('nivel_acesso')
     if usuario_nivel != 'paciente':
         return jsonify({"erro": "Acesso negado. Rota destinada a pacientes."}), 403
@@ -46,7 +46,10 @@ def agendamento():
     )
     db.session.add(consulta)
     db.session.commit()
-    return jsonify({"mensagem": "Consulta agendada com sucesso.", "id": consulta.id}), 201
+    return jsonify({"mensagem": "Consulta agendada com sucesso.", "id": consulta.id, 
+                    "medico": consulta.medico.nome ,
+                    "data": str(consulta.data),
+                    "hora": str(consulta.hora)}), 201
 
 
 # o paciente pode ver a lista de medicos credenciados
@@ -118,7 +121,7 @@ def consulta_agendamento():
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     
-    paciente_id = usuario['paciente_id']
+    paciente_id = usuario['id']
     usuario_nivel = usuario.get('nivel_acesso')
     if usuario_nivel != 'paciente':
         return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
@@ -149,14 +152,14 @@ def consulta_agendamento():
     return jsonify(resultado), 200
 
 #o paciente pode cancelar uma consulta
-@consultas_paciente_bp.route('/consulta/<int:consulta_id>/paciente_cancelamento', methods=['POST'])
+@consultas_paciente_bp.route('/consulta/<int:consulta_id>/paciente_cancelamento', methods=['PUT'])
 @jwt_required()
 def cancelamento_paciente(consulta_id):
     usuario = get_jwt_identity() or {}
     if not usuario:
         return jsonify({"erro": "Usuário não identificado ou token inválido."}), 403
     
-    paciente_id = usuario['paciente_id']
+    paciente_id = usuario['id']
     usuario_nivel = usuario.get('nivel_acesso')
     if usuario_nivel != 'paciente':
         return jsonify({"erro": "Acesso negado. Acesso negado. Rota destinada a pacientes."}), 403
@@ -172,12 +175,16 @@ def cancelamento_paciente(consulta_id):
     if consulta.status == 'Cancelada':
         return jsonify({"erro": f"Consulta ID {consulta_id} já está cancelada."}), 400  
     
+    if consulta.status != 'Agendada':
+        return jsonify({"erro": f"Consulta ID {consulta_id} já foi finalizada e não pode ser cancelada."}), 400
+    
     consulta.status = 'Cancelada'
     db.session.commit()
     return jsonify({"mensagem": f"Consulta {consulta_id} cancelada com sucesso.","consulta": {
-            "id": consulta.id,
-            "paciente_id": consulta.paciente_id,
-            "status": consulta.status
+            "Consulta_id": consulta.id,
+            "Paciente": consulta.paciente.nome,
+            "Medico": consulta.medico.nome,
+            "Status": consulta.status
         }}), 200
 
 

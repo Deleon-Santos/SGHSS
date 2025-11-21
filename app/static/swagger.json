@@ -275,7 +275,7 @@
     },
     
     "/consulta/{consulta_id}/cancelamento_consulta": {
-      "post": {
+      "put": {
         "tags": ["Medico"],
         "summary": "Cancelar uma consulta",
         "description": "Permite que o médico cancele uma consulta agendada.",
@@ -383,12 +383,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "paciente_id": { "type": "integer" },
+                
                 "medico_id": { "type": "integer" },
                 "data": { "type": "string", "format": "date" },
                 "hora": { "type": "string", "format": "time" }
               },
-              "required": ["paciente_id", "medico_id", "data", "hora"]
+              "required": [ "medico_id", "data", "hora"]
             }
           }
         ],
@@ -400,7 +400,7 @@
     },
 
     "/consulta/{consulta_id}/paciente_cancelamento": {
-      "post": {
+      "put": {
         "tags": ["Paciente"],
         "summary": "Cancelar uma consulta",
         "description": "Permite que o paciente cancele uma consulta agendada.",
@@ -545,7 +545,7 @@
       }
     },
 
-    "/consulta/{consulta_id}/": {
+    "/consulta/{consulta_id}": {
     "get": {
       "tags": [
         "Secretaria"
