@@ -13,6 +13,7 @@ consultas_medico_bp = Blueprint('consultas_medico', __name__)
 def swagger_redirect():
     return "<meta http-equiv='refresh' content='0;url=/'>"
 
+
 # Rotinas de atendimento Medico
 @consultas_medico_bp.route('/consulta/<int:consulta_id>/atendimento', methods=['POST'])
 @jwt_required() 

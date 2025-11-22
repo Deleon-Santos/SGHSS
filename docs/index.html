@@ -59,6 +59,26 @@
             background: #f1f1f1;
             color: #555;
         }
+        @media (max-width: 600px) {
+             header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+        }
+            th, td {
+                padding: 6px 6px;
+                font-size: .5rem;
+            }
+            table {
+                min-width: 300px; 
+            }
+            pre, code {
+                background: #eee;
+                padding: 10px;
+                border-radius: 5px;
+                overflow-x: auto;
+                font-size: .6rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -121,13 +141,14 @@
         <pre>
 SGHSS/
 ├── app/
+│   ├── database/
 │   ├── models/
 │   ├── routes/
-│   ├── extensions.py
-│   └── __init__.py
+│   ├── static/
+├── docs/ 
 ├── requirements.txt
 ├── run.py
-├── swagger.json
+├── .gitignore
 └── README.md
         </pre>
 
@@ -171,8 +192,59 @@ SGHSS/
             <tr><td>DELETE</td><td>/api/deleta/medico/{medico_id}</td><td>Excluir médico</td></tr>
         </table>
 
-        <h2>⚙️ Como Executar</h2>
+        
+
+        <h2>🧪 Modelos de requisição das principais funcionalidades</h2>
         <pre>
+//login para obter o token JWT 
+POST api/login
+{
+  "usuario": "deleon@santos",
+  "senha": "4556949"
+}
+
+//altera a senha do usuario autenticado
+PUT api/editar_senha
+{
+  "senha_atual": "4556949",
+  "nova_senha": "nova_senha123"
+}
+
+//secretario cadastra um novo paciente
+POST /api/consulta/cadastro_paciente
+{
+  "nome": "Maria Silva",
+    "cpf": "12345678901",
+    "data_nascimento": "1990-05-15",
+    "email": "maria@silva",
+    "senha": "maria"
+}
+
+//paciente agenda uma consulta com o medico de id 2
+POST /api/consulta/novo_agendamento
+{ 
+    "medico_id": 2,
+    "data": "2024-07-20",
+    "hora": "14:30"
+}
+
+//medico finaliza o atendimento da consulta de id 1
+POST api/consulta/1/atendimento
+{
+    "diagnostico": "Gripe comum"
+}
+
+//medico prescreve tratamento para a consulta de id 1
+POST api/consulta/1/prescreve_tratamento
+{
+    "medicacao": "Paracetamol 500mg, 
+    "dosagem":"1 comprimido a cada 8 horas por 5 dias"
+    "orientacoes": "Descansar e manter-se hidratado"
+}
+        </pre>
+<h2>⚙️ Como clonar e executar na sua máquina</h2>
+        <pre>
+git clone[repositorio]
 python -m venv venv
 venv/Script/activate
 pip install -r requirements.txt
@@ -198,16 +270,6 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.30
 Werkzeug==3.0.3
         </pre>
-
-        <h2>🧪 Testando no Postman</h2>
-        <pre>
-POST /login
-{
-  "usuario": "exemplo",
-  "senha": "123456"
-}
-        </pre>
-
         <h2>📝 Conclusão</h2>
         <p>O SGHSS é uma solução modular, segura e escalável para gestão hospitalar, projetada com Flask, JWT e boas práticas REST.</p>
     </div>

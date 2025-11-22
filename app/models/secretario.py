@@ -9,7 +9,6 @@ class Secretario(db.Model):
     usuario = db.Column(db.String(80), unique=True, nullable=False)
     senha = db.Column(db.String(20), nullable=False)
     nivel_acesso = db.Column(db.String(20), nullable=False, default='secretario')
-
     filial_id = db.Column(db.Integer, db.ForeignKey('filiais.id'), nullable=False)
     
     filial = db.relationship('Filial', back_populates='secretarios')

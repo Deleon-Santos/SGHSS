@@ -113,6 +113,7 @@ def consulta_agenda_especialidade(medico_id):
     ]
     return jsonify(resultado), 200
 
+
 #o pacinente pode ver sua agenda de consultas
 @consultas_paciente_bp.route('/consulta/agendamento_paciente', methods=['GET'])
 @jwt_required()
@@ -150,6 +151,7 @@ def consulta_agendamento():
     ]
 
     return jsonify(resultado), 200
+
 
 #o paciente pode cancelar uma consulta
 @consultas_paciente_bp.route('/consulta/<int:consulta_id>/paciente_cancelamento', methods=['PUT'])
